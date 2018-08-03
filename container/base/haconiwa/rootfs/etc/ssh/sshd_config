@@ -1,0 +1,8 @@
+AuthorizedKeysCommand /usr/sbin/mc-key-wrapper
+AuthorizedKeysCommandUser root
+ChallengeResponseAuthentication no
+PasswordAuthentication no
+PermitRootLogin no
+PubkeyAuthentication yes
+UsePAM no
+Subsystem sftp /usr/lib/openssh/sftp-server
