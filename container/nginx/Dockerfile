@@ -1,4 +1,4 @@
-FROM haconiwa-container-base:latest
+FROM haconiwa-container:base
 
 ENV IMAGE_NAME nginx
 RUN apt update -yy && \
