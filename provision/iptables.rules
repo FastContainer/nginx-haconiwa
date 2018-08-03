@@ -1,0 +1,19 @@
+*nat
+:PREROUTING ACCEPT [1:100]
+:INPUT ACCEPT [1:100]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:HACONIWA - [0:0]
+-A PREROUTING -m addrtype --dst-type LOCAL -j HACONIWA
+-A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j HACONIWA
+-A POSTROUTING -s 10.0.5.0/24 ! -d 10.0.5.0/24 -j MASQUERADE
+COMMIT
+
+*filter
+:INPUT ACCEPT [133:10308]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [72:9600]
+-A FORWARD -o haconiwa0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -i haconiwa0 ! -o haconiwa0 -j ACCEPT
+-A FORWARD -i haconiwa0 -o haconiwa0 -j ACCEPT
+COMMIT
