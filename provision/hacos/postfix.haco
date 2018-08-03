@@ -1,0 +1,55 @@
+# -*- mode: ruby -*-
+
+Haconiwa.define do |c|
+  def Kernel.container_working?(ip, port, veth)
+    system "netstat -nt | grep -v TIME_WAIT | awk '{print $5}' | grep #{ip}:#{port}"
+  end
+
+  root = Pathname.new('/var/lib/haconiwa/rootfs/postfix')
+  c.name = 'postfix'
+  ip = '10.0.5.4'
+  port = 25
+
+  c.environ = { "maildomain" => "example.com" }
+
+  c.init_command = ['/entry.sh']
+  c.command.set_stdout(file: "/var/log/haconiwa.#{c.name}.stdout.log")
+  c.command.set_stderr(file: "/var/log/haconiwa.#{c.name}.stderr.log")
+  c.chroot_to root
+  c.daemonize!
+
+  c.lxcfs_root = '/var/lib/lxcfs'
+
+  c.mount_independent 'procfs'
+  c.mount_independent 'sysfs'
+  c.mount_independent 'devtmpfs'
+  c.mount_independent 'devpts'
+  c.mount_independent 'shm'
+  c.mount_network_etc(root, host_root: '/etc')
+
+  c.namespace.unshare 'mount'
+  c.namespace.unshare 'ipc'
+  c.namespace.unshare 'uts'
+  c.namespace.unshare 'pid'
+
+  c.network.namespace = c.name
+  c.network.container_ip = ip
+  c.network.bridge_name = 'haconiwa0'
+  c.network.veth_host = veth = "veth#{::SHA1.sha1_hex(c.name)[0, 4]}"
+  c.network.veth_guest = 'eth0'
+
+  c.cgroup['pids.max'] = 1024
+  c.capabilities.allow 'cap_sys_chroot'
+  c.capabilities.allow 'cap_net_bind_service'
+  c.capabilities.allow 'cap_kill'
+  c.capabilities.allow 'cap_audit_write'
+
+  c.add_async_hook(msec: 3 * 60 * 1000) do |base|
+    if container_working?(ip, 25, veth)
+      Haconiwa::Logger.info "shutdown canceled because container(#{ip}:#{port} on #{veth}) still seems working. wait next shutdown"
+      next
+    end
+    Haconiwa::Logger.info "Process killed: #{base.pid}, container not working on #{ip}:#{port}"
+    ::Process.kill :TERM, base.pid
+  end
+end
