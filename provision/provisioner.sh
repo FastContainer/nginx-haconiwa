@@ -2,6 +2,7 @@
 
 nginx_ver=1.13.12
 common_name=fastcontainer.local
+images=("nginx" "ssh" "postfix")
 
 apt upgrade -y
 apt install -y bridge-utils openssl curl
@@ -17,17 +18,12 @@ test -d /var/lib/haconiwa || mkdir -p /var/lib/haconiwa
 rm -rf /var/lib/haconiwa/hacos && ln -s /data/hacos /var/lib/haconiwa/hacos
 test -d /var/lib/haconiwa/rootfs || mkdir -p /var/lib/haconiwa/rootfs
 
-# deploy nginx container images
-test -d /var/lib/haconiwa/rootfs/nginx || mkdir /var/lib/haconiwa/rootfs/nginx
-tar xfp /data/dist/nginx.image.tar.gz -C /var/lib/haconiwa/rootfs/nginx
-
-# deploy ssh container images
-test -d /var/lib/haconiwa/rootfs/ssh || mkdir /var/lib/haconiwa/rootfs/ssh
-tar xfp /data/dist/ssh.image.tar.gz -C /var/lib/haconiwa/rootfs/ssh
-
-# deploy postfix container images
-test -d /var/lib/haconiwa/rootfs/postfix || mkdir /var/lib/haconiwa/rootfs/postfix
-tar xfp /data/dist/postfix.image.tar.gz -C /var/lib/haconiwa/rootfs/postfix
+# deploy container images
+for ((i = 0; i < ${#array[@]}; i++)) {
+  test -d /var/lib/haconiwa/rootfs/${images[i]} || mkdir /var/lib/haconiwa/rootfs/${images[i]}
+  tar xfp /data/dist/${images[i]}.image.tar.gz -C /var/lib/haconiwa/rootfs/${images[i]}
+  test -d /var/log/haconiwa/${images[i]} || mkdir -p /var/log/haconiwa/${images[i]}
+}
 
 # setup network
 brctl show haconiwa0 2>&1 | grep -i "no such device" && brctl addbr haconiwa0
