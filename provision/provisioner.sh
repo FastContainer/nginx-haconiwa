@@ -26,9 +26,8 @@ for ((i = 0; i < ${#images[@]}; i++)) {
 }
 
 # setup network
-brctl show haconiwa0 2>&1 | grep -i "no such device" && brctl addbr haconiwa0
-ip addr show haconiwa0 2>&1 | grep "10.0.5.1/24" || \
-  ip addr add 10.0.5.1/24 dev haconiwa0 && ip link set dev haconiwa0 up
+brctl show haconiwa0 2>&1 | grep -i "no such device" && \
+  haconiwa init --bridge --bridge-ip=10.0.5.1/24
 test $(/sbin/sysctl net.ipv4.ip_forward | awk '{print $3}') -eq 0 && \
   /sbin/sysctl -w net.ipv4.ip_forward=1
 /sbin/iptables-restore < /data/iptables.rules
