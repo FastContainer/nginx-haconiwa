@@ -21,11 +21,10 @@ When the VM starts up, let's start the container with the request trigger in the
 
 ```sh
 # HTTP container
-$ curl http://localhost:8080/
+$ curl http://127.0.0.1:8080/
 
-# SSH container
+# SSH container (password: screencast)
 $ ssh root@127.0.0.1 -p 8022
-#password: screencast
 
 # SMTP container
 $ telnet 127.0.0.1 8025
