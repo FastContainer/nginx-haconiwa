@@ -36,7 +36,7 @@ module Container
 
     def run(haco, ip, port)
       cmd = ['/usr/bin/haconiwa', 'run', "/var/lib/haconiwa/hacos/#{haco}.haco"].join(' ')
-      shell_cmd = ['/bin/bash', '-c', "#{cmd} >> /tmp/nginx_mruby.err 2>&1"]
+      shell_cmd = ['/bin/bash', '-c', "#{cmd} >> /var/log/nginx/haconiwa.log 2>&1"]
       debug(shell_cmd.join(' '))
       clean_spawn(*shell_cmd)
       wait_for_listen("/var/lock/.#{haco}.hacolock", ip, port)
