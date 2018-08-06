@@ -17,7 +17,10 @@ Usage
 To create an image to use in this implementation, run GNU make and vagrant to run the VM on the Virtualbox.
 
 ```sh
+# Create nginx and container images to `./provision/dist`
 $ make
+
+# Create instance, and provision by `./provision/provisioner.sh`
 $ vagrant up
 ```
 
