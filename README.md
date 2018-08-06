@@ -8,6 +8,9 @@ This is an example of [FastContainer][fastcontainer] implementation by [nginx][n
 [ngx_mruby]: https://github.com/matsumotory/ngx_mruby
 [haconiwa]: https://github.com/haconiwa/haconiwa
 
+<p align="center"><img
+src="https://github.com/FastContainer/nginx-haconiwa/blob/master/misc/overview-fig.png" width="400"></p>
+
 Usage
 --
 
