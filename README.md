@@ -9,7 +9,7 @@ This is an example of [FastContainer][fastcontainer] implementation by [nginx][n
 [haconiwa]: https://github.com/haconiwa/haconiwa
 
 <p align="center"><img
-src="https://github.com/FastContainer/nginx-haconiwa/blob/master/misc/overview-fig.png" width="400"></p>
+src="https://github.com/FastContainer/nginx-haconiwa/blob/master/misc/overview-fig.png"></p>
 
 Usage
 --
