@@ -1,8 +1,9 @@
 FastContainer: Nginx with Haconiwa
 ==
 
-This is an example of FastContainer implementation by [nginx][nginx], [ngx_mruby][ngx_mruby] and [haconiwa][haconiwa].
+This is an example of [FastContainer][fastcontainer] implementation by [nginx][nginx], [ngx_mruby][ngx_mruby] and [haconiwa][haconiwa].
 
+[fastcontainer]: https://speakerdeck.com/matsumoto_r/fastcontainer-at-iot38
 [nginx]: https://github.com/nginx/nginx
 [ngx_mruby]: https://github.com/matsumotory/ngx_mruby
 [haconiwa]: https://github.com/haconiwa/haconiwa
