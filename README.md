@@ -42,3 +42,12 @@ Author
 - [linyows][linyows]
 
 [linyows]: https://github.com/linyows
+
+License
+--
+
+This project is under the MIT License.
+
+- nginx: https://github.com/nginx/nginx/blob/master/docs/text/LICENSE
+- ngx_mruby: https://github.com/matsumotory/ngx_mruby/blob/master/MITL
+- haconiwa: https://github.com/haconiwa/haconiwa/blob/master/LICENSE
