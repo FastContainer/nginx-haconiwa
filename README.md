@@ -35,3 +35,10 @@ $ ssh root@127.0.0.1 -p 8022
 # SMTP container
 $ telnet 127.0.0.1 8025
 ```
+
+Author
+--
+
+- [linyows][linyows]
+
+[linyows]: https://github.com/linyows
