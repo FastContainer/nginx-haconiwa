@@ -36,6 +36,13 @@ $ ssh root@127.0.0.1 -p 8022
 $ telnet 127.0.0.1 8025
 ```
 
+Todo
+--
+
+- [ ] Multitenancy
+- [ ] Auto Scaling
+- [ ] Multi Host
+
 Author
 --
 
