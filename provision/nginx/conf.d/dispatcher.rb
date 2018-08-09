@@ -98,5 +98,10 @@ lambda do
     cport = 465
   end
 
+  if port != 80
+    c = Nginx::Stream::Connection.new 'dynamic_server'
+    c.upstream_server = "#{cip}:#{cport}"
+  end
+
   return Container.dispatch(haco, cip, cport)
 end.call
