@@ -79,26 +79,24 @@ lambda do
   when 80
     haco = 'nginx'
     cip = '10.0.5.2'
-    cport = 80
   when 8022
     haco = 'ssh'
     cip = '10.0.5.3'
-    cport = 22
   when 8025
     haco = 'postfix'
     cip = '10.0.5.4'
-    cport = 25
   when 8587
     haco = 'postfix'
     cip = '10.0.5.4'
-    cport = 587
   when 8465
     haco = 'postfix'
     cip = '10.0.5.4'
-    cport = 465
   end
 
-  if port != 80
+  if port == 80
+    cport = port
+  else
+    cport = port - 8000
     c = Nginx::Stream::Connection.new 'dynamic_server'
     c.upstream_server = "#{cip}:#{cport}"
   end
