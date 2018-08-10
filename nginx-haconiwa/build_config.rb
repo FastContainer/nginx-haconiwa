@@ -30,6 +30,7 @@ MRuby::Build.new('host') do |conf|
   conf.gem mgem: 'mruby-socket'
   conf.gem mgem: 'mruby-fast-remote-check'
   conf.gem github: 'udzura/mruby-clean-spawn'
+  conf.gem github: 'AndrewBelt/mruby-yaml'
   # ngx_mruby extended class
   conf.gem './mrbgems/ngx_mruby_mrblib'
   conf.gem './mrbgems/rack-based-api'
