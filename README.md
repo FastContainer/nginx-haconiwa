@@ -10,6 +10,12 @@ This is an example of [FastContainer][fastcontainer] implementation by [nginx][n
 
 ![overview](misc/overview-fig.png)
 
+Requirement
+--
+
+- docker >= 18.06.0-ce
+- vagrant >= 2.1.1
+
 Usage
 --
 
