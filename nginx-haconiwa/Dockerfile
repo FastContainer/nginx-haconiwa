@@ -10,7 +10,7 @@ RUN apt -y install build-essential bison libpcre3-dev libpcre++-dev debhelper \
                    autotools-dev cgroup-lite git
 RUN git clone https://github.com/vozlt/nginx-module-vts
 RUN git clone https://github.com/matsumotory/ngx_mruby
-RUN wget http://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz &&\
+RUN wget http://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz && \
     tar zxf openssl-$OPENSSL_VERSION.tar.gz
 RUN wget http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz &&\
     tar zxf nginx-$NGINX_VERSION.tar.gz
