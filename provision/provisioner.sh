@@ -16,9 +16,9 @@ type haconiwa >/dev/null 2>&1 || \
 # deploy hacofile
 test -d /var/lib/haconiwa || mkdir -p /var/lib/haconiwa
 rm -rf /var/lib/haconiwa/hacos && ln -s /data/hacos /var/lib/haconiwa/hacos
-test -d /var/lib/haconiwa/rootfs || mkdir -p /var/lib/haconiwa/rootfs
 
 # deploy container images
+test -d /var/lib/haconiwa/rootfs || mkdir -p /var/lib/haconiwa/rootfs
 for ((i = 0; i < ${#images[@]}; i++)) {
   test -d /var/lib/haconiwa/rootfs/${images[i]} || mkdir /var/lib/haconiwa/rootfs/${images[i]}
   tar xfp /data/dist/${images[i]}.image.tar -C /var/lib/haconiwa/rootfs/${images[i]}
