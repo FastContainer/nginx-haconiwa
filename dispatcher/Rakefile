@@ -1,27 +1,14 @@
 require 'fileutils'
 
-HACONIWA_VERSION = '160a1807c3f7daef17d2933acf7f337bf91ae4bb'
+MRUBY_VERSION = ENV['MRUBY_VERSION']
 
 APP_NAME = ENV["APP_NAME"] || "dispatcher"
 APP_ROOT = ENV["APP_ROOT"] || Dir.pwd
+
 mruby_root = File.expand_path(ENV["MRUBY_ROOT"] || "#{APP_ROOT}/mruby")
-haconiwa_root = File.expand_path(ENV["HACONIWA_ROOT"] || "#{APP_ROOT}/haconiwa")
 mruby_config = File.expand_path(ENV["MRUBY_CONFIG"] || "build_config.rb")
 ENV['MRUBY_ROOT'] = mruby_root
 ENV['MRUBY_CONFIG'] = mruby_config
-
-file :haconiwa do
-  FileUtils.mkdir 'haconiwa'
-  Dir.chdir(haconiwa_root) do
-    sh <<-CMD
-      git init
-      git remote add origin https://github.com/haconiwa/haconiwa.git
-      git fetch --no-tags origin +refs/heads/master
-      git reset --hard -q #{HACONIWA_VERSION}
-    CMD
-    MRUBY_VERSION = File.read(File.expand_path "./mruby_version.lock", __FILE__).chomp
-  end
-end
 
 file :mruby do
   FileUtils.mkdir 'mruby'
@@ -35,7 +22,6 @@ file :mruby do
   end
 end
 
-Rake::Task[:haconiwa].invoke unless Dir.exist?(haconiwa_root)
 Rake::Task[:mruby].invoke unless Dir.exist?(mruby_root)
 
 Dir.chdir(mruby_root)
