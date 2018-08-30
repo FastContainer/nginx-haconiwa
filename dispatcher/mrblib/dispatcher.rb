@@ -3,7 +3,8 @@ def __main__(argv)
   when "version"
     puts "v#{Dispatcher::VERSION}"
   when "run"
-    Dispatcher::Server.new.run
+    app = -> (env) { [200, { 'Content-Type' => 'text/plain' }, ['OK']] }
+    Dispatcher::Server.new(host: 'localhost', port: 8000, app: app).run
   else
     puts <<-HELP
 Usage: dispatcher [CMD]
