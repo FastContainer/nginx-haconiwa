@@ -8,6 +8,7 @@ cd /ngx_mruby
   --with-ngx-config-opt="--with-http_v2_module \
                          --with-http_ssl_module \
                          --with-stream --with-debug \
+                         --with-mail --with-mail_ssl_module \
                          --add-module=/nginx-module-vts \
                          --with-http_stub_status_module \
                          --without-stream_access_module \

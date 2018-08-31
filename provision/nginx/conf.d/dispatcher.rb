@@ -1,10 +1,36 @@
 # coding: utf-8
 # frozen_string_literal: true
 
-CleanSpawn.cgroup_root_path = "/sys/fs/cgroup/systemd"
+CleanSpawn.cgroup_root_path = '/sys/fs/cgroup/systemd'
 
 module Container
   class << self
+    def dispatch_after_smtp_auth
+      list = {
+        foo: '10.0.5.5',
+        bar: '10.0.5.6'
+      }
+
+      req = Nginx::Request.new
+      user = req.headers_in['Auth-User'].to_sym
+      prot = req.headers_in['Auth-Protocol'].to_sym
+
+      req.headers_out['Auth-Status'] = -> do
+        unless list.keys.include? user
+          debug("SMTP AUTH failed: unknown #{user}")
+          return 'invalid user'
+        end
+
+        dispatch('postfix', list[user], 25)
+
+        req.headers_out['Auth-Server'] = list[user]
+        req.headers_out['Auth-Port'] = { smtp: '25', imap: '143' }
+
+        debug("SMTP AUTH success: #{user} to #{list[user]}:25")
+        return 'OK'
+      end.call
+    end
+
     def dispatch(haco = nil, ip = nil, port = nil)
       raise "Not enough container info -- haco: #{haco}, ip: #{ip} port: #{port}" \
         if haco.nil? || ip.nil? || port.nil?
@@ -65,6 +91,10 @@ module Container
   end
 end
 
+def req
+  @req ||= Nginx::Request.new
+end
+
 def nginx_local_port
   Nginx::Stream::Connection.local_port
 rescue
@@ -74,6 +104,11 @@ end
 
 lambda do
   port = nginx_local_port
+
+  # smtp auth api
+  if port == 58080
+    return Container.dispatch_after_smtp_auth
+  end
 
   case port
   when 80
