@@ -6,29 +6,39 @@ CleanSpawn.cgroup_root_path = '/sys/fs/cgroup/systemd'
 module Container
   class << self
     def dispatch_after_smtp_auth
-      list = {
+      ips = {
         foo: '10.0.5.5',
         bar: '10.0.5.6'
+      }
+
+      ports = {
+        smtp: 25,
+        imap: 143
       }
 
       req = Nginx::Request.new
       user = req.headers_in['Auth-User'].to_sym
       prot = req.headers_in['Auth-Protocol'].to_sym
+      ip = ips[user]
+      port = ports[prot]
+      result = "#{ip}:#{port}"
 
       req.headers_out['Auth-Status'] = -> do
-        unless list.keys.include? user
+        unless ips.keys.include? user
           debug("SMTP AUTH failed: unknown #{user}")
           return 'invalid user'
         end
 
-        dispatch('postfix', list[user], 25)
+        req.headers_out['Auth-Server'] = ip
+        req.headers_out['Auth-Port'] = "#{port}"
 
-        req.headers_out['Auth-Server'] = list[user]
-        req.headers_out['Auth-Port'] = { smtp: '25', imap: '143' }
+        dispatch('postfix', ip, port)
 
-        debug("SMTP AUTH success: #{user} to #{list[user]}:25")
+        debug("SMTP AUTH success: #{user} to #{result}")
         return 'OK'
       end.call
+
+      return result
     end
 
     def dispatch(haco = nil, ip = nil, port = nil)
