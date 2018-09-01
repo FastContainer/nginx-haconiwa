@@ -71,11 +71,13 @@ module Container
     end
 
     def run(haco, ip, port)
-      cmd = ['/usr/bin/haconiwa', 'run', "/var/lib/haconiwa/hacos/#{haco}.haco"].join(' ')
+      id = ::Digest::SHA1.hexdigest("#{ip}")[0, 7]
+      env = ['/usr/bin/env', "IP=#{ip}", "PORT=#{port}", "ID=#{id}"].join(' ')
+      cmd = [env, '/usr/bin/haconiwa', 'run', "/var/lib/haconiwa/hacos/#{haco}.haco"].join(' ')
       shell_cmd = ['/bin/bash', '-c', "#{cmd} >> /var/log/nginx/haconiwa.log 2>&1"]
       debug(shell_cmd.join(' '))
       clean_spawn(*shell_cmd)
-      wait_for_listen("/var/lock/.#{haco}.hacolock", ip, port)
+      wait_for_listen("/var/lock/.#{haco}-#{id}.hacolock", ip, port)
     end
 
     def wait_for_listen(lockfile, ip, port, max = 600)
