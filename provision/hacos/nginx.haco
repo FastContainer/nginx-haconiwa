@@ -1,18 +1,21 @@
 # -*- mode: ruby -*-
+# vi: set ft=ruby :
 
 Haconiwa.define do |c|
   def Kernel.container_working?(ip, port, veth)
     system "netstat -nt | grep -v TIME_WAIT | awk '{print $5}' | grep #{ip}:#{port}"
   end
 
-  root = Pathname.new('/var/lib/haconiwa/rootfs/nginx')
-  c.name = 'nginx'
-  ip = '10.0.5.2'
-  port = 80
+  ip = ENV['IP']
+  id = ENV['ID']
+  port = ENV['PORT']
 
+  c.name = "nginx-#{id}"
+
+  root = Pathname.new('/var/lib/haconiwa/rootfs/nginx')
   c.init_command = ['/usr/sbin/nginx', '-g', 'daemon off;']
-  c.command.set_stdout(file: "/var/log/haconiwa/#{c.name}/stdout.log")
-  c.command.set_stderr(file: "/var/log/haconiwa/#{c.name}/stderr.log")
+  c.command.set_stdout(file: "/var/log/haconiwa/#{c.name}.stdout")
+  c.command.set_stderr(file: "/var/log/haconiwa/#{c.name}.stderr")
   c.chroot_to root
   c.daemonize!
 
@@ -33,7 +36,7 @@ Haconiwa.define do |c|
   c.network.namespace = c.name
   c.network.container_ip = ip
   c.network.bridge_name = 'haconiwa0'
-  c.network.veth_host = veth = "veth#{::SHA1.sha1_hex(c.name)[0, 4]}"
+  c.network.veth_host = veth = "veth#{id}"
   c.network.veth_guest = 'eth0'
 
   c.cgroup['pids.max'] = 1024
