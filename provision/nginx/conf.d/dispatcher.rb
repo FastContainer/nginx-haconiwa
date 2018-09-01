@@ -97,7 +97,8 @@ module Container
 
     def listen?(ip, port)
       ::FastRemoteCheck.new('127.0.0.1', 0, ip, port, 3).connectable?
-    rescue
+    rescue => e
+      debug("FastRemoteCheck error: #{e.message}")
       false
     end
   end
