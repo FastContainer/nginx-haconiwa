@@ -37,7 +37,7 @@ Haconiwa.define do |c|
   c.network.namespace = id
   c.network.container_ip = ip
   c.network.bridge_name = 'haconiwa0'
-  c.network.veth_host = veth = "veth#{id}"
+  c.network.veth_host = veth = "veth#{::SHA1.sha1_hex(id)[0, 4]}"
   c.network.veth_guest = 'eth0'
 
   c.cgroup['pids.max'] = 1024
