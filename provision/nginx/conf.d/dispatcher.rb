@@ -8,15 +8,7 @@ module Container
     def dispatch(haco = nil, ip = nil, port = nil)
       raise "Not enough container info -- haco: #{haco}, ip: #{ip} port: #{port}" \
         if haco.nil? || ip.nil? || port.nil?
-
-      result = "#{ip}:#{port}"
-      return result if listen?(ip, port)
-
-      debug('Launch a container')
-      run(haco, ip, port)
-      debug("Return ip: #{ip} port: #{port}")
-      return result
-
+      return Dispatcher.new(ip, port).run(haco)
     rescue => e
       err(e.message)
       return ''
@@ -33,23 +25,36 @@ module Container
     rescue
       Nginx::Stream.log Nginx::Stream::LOG_ERR, "#{self.name} -- #{m}"
     end
+  end
 
-    def run(haco, ip, port)
-      cmd = ['/usr/bin/haconiwa', 'run', "/var/lib/haconiwa/hacos/#{haco}.haco"].join(' ')
-      shell_cmd = ['/bin/bash', '-c', "#{cmd} >> /var/log/nginx/haconiwa.log 2>&1"]
-      debug(shell_cmd.join(' '))
-      clean_spawn(*shell_cmd)
-      wait_for_listen("/var/lock/.#{haco}.hacolock", ip, port)
+  class Dispatcher
+    def initialize(ip, port)
+      @ip = ip
+      @port = port
     end
 
-    def wait_for_listen(lockfile, ip, port, max = 600)
+    def run(haco)
+      result = "#{@ip}:#{@port}"
+      return result if listen?
+
+      cmd = ['/usr/bin/haconiwa', 'run', "/var/lib/haconiwa/hacos/#{haco}.haco"].join(' ')
+      shell_cmd = ['/bin/bash', '-c', "#{cmd} >> /var/log/nginx/haconiwa.log 2>&1"]
+      ::Container.debug("Launch a container: #{shell_cmd.join(' ')}")
+      clean_spawn(*shell_cmd)
+      wait_for_listen("/var/lock/.#{haco}.hacolock")
+
+      ::Container.debug("Return ip: #{@ip} port: #{@port}")
+      return result
+    end
+
+    def wait_for_listen(lockfile, max = 300)
       while true
-        listen = listen?(ip, port)
+        listen = listen?
         file = File.exist?(lockfile)
 
         return if listen && file
-        debug("Stil no listen: #{ip}:#{port}") unless listen
-        debug("Stil no lockfile: #{lockfile}'") unless file
+        ::Container.debug("Stil no listen: #{@ip}:#{@port}") unless listen
+        ::Container.debug("Stil no lockfile: #{lockfile}'") unless file
 
         usleep 100 * 1000
         max -= 1
@@ -57,8 +62,8 @@ module Container
       end
     end
 
-    def listen?(ip, port)
-      ::FastRemoteCheck.new('127.0.0.1', 0, ip, port, 3).connectable?
+    def listen?
+      ::FastRemoteCheck.new('127.0.0.1', 0, @ip, @port, 3).connectable?
     rescue
       false
     end

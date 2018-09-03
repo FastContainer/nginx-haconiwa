@@ -1,0 +1,19 @@
+containers:
+- name: http
+  domain: foo.com
+  image: nginx
+  ip: 10.0.5.2
+  ports:
+    - 80
+- name: ssh
+  user: root
+  image: ssh
+  ip: 10.0.5.3
+  ports:
+    - 22
+- name: smtp
+  user: root
+  image: smtp
+  ip: 10.0.5.4
+  ports:
+    - 25
