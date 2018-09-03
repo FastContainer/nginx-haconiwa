@@ -71,16 +71,30 @@ module Container
     end
 
     def run(haco, ip, port)
-      id = ::Digest::SHA1.hexdigest("#{ip}")[0, 7]
+      root = '/var/lib/haconiwa'
+      id = "#{haco}-#{ip.gsub('.', '-')}"
+      setup_rootfs(root, haco, id)
+      run_haconiwa(ip, port, root, haco, id)
+      wait_for_listen("/var/lock/.#{id}.hacolock", ip, port)
+    end
+
+    def setup_rootfs(root, haco, id)
+      rootfs = "#{root}/rootfs/#{id}"
+      return if File.exist?(rootfs)
+      shell_cmd = ['/bin/cp', '-r', "#{root}/images/#{haco}", rootfs]
+      debug(shell_cmd.join(' '))
+      clean_spawn(*shell_cmd)
+    end
+
+    def run_haconiwa(ip, port, root, haco, id)
       env = ['/usr/bin/env', "IP=#{ip}", "PORT=#{port}", "ID=#{id}"].join(' ')
-      cmd = [env, '/usr/bin/haconiwa', 'run', "/var/lib/haconiwa/hacos/#{haco}.haco"].join(' ')
+      cmd = [env, '/usr/bin/haconiwa', 'run', "#{root}/hacos/#{haco}.haco"].join(' ')
       shell_cmd = ['/bin/bash', '-c', "#{cmd} >> /var/log/nginx/haconiwa.log 2>&1"]
       debug(shell_cmd.join(' '))
       clean_spawn(*shell_cmd)
-      wait_for_listen("/var/lock/.#{haco}-#{id}.hacolock", ip, port)
     end
 
-    def wait_for_listen(lockfile, ip, port, max = 600)
+    def wait_for_listen(lockfile, ip, port, max = 100)
       while true
         listen = listen?(ip, port)
         file = File.exist?(lockfile)

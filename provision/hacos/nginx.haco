@@ -6,16 +6,17 @@ Haconiwa.define do |c|
     system "netstat -nt | grep -v TIME_WAIT | awk '{print $5}' | grep #{ip}:#{port}"
   end
 
-  ip = ENV['IP']
   id = ENV['ID']
+  ip = ENV['IP']
   port = ENV['PORT']
 
-  c.name = "nginx-#{id}"
+  c.name = id
+  c.workdir = '/root'
 
-  root = Pathname.new('/var/lib/haconiwa/rootfs/nginx')
+  root = Pathname.new("/var/lib/haconiwa/rootfs/#{id}")
   c.init_command = ['/usr/sbin/nginx', '-g', 'daemon off;']
-  c.command.set_stdout(file: "/var/log/haconiwa/#{c.name}.stdout")
-  c.command.set_stderr(file: "/var/log/haconiwa/#{c.name}.stderr")
+  c.command.set_stdout(file: "/var/log/haconiwa/#{id}.out")
+  c.command.set_stderr(file: "/var/log/haconiwa/#{id}.err")
   c.chroot_to root
   c.daemonize!
 
@@ -33,7 +34,7 @@ Haconiwa.define do |c|
   c.namespace.unshare 'uts'
   c.namespace.unshare 'pid'
 
-  c.network.namespace = c.name
+  c.network.namespace = id
   c.network.container_ip = ip
   c.network.bridge_name = 'haconiwa0'
   c.network.veth_host = veth = "veth#{id}"
