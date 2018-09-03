@@ -14,16 +14,10 @@ type haconiwa >/dev/null 2>&1 || \
   apt install -y haconiwa
 
 # deploy hacofile
-test -d /var/lib/haconiwa || mkdir -p /var/lib/haconiwa
-rm -rf /var/lib/haconiwa/hacos && ln -s /data/hacos /var/lib/haconiwa/hacos
-
-# deploy container images
+test -d /var/log/haconiwa || mkdir -p /var/log/haconiwa
 test -d /var/lib/haconiwa/rootfs || mkdir -p /var/lib/haconiwa/rootfs
-for ((i = 0; i < ${#images[@]}; i++)) {
-  test -d /var/lib/haconiwa/rootfs/${images[i]} || mkdir /var/lib/haconiwa/rootfs/${images[i]}
-  tar xfp /data/dist/${images[i]}.image.tar -C /var/lib/haconiwa/rootfs/${images[i]}
-  test -d /var/log/haconiwa/${images[i]} || mkdir -p /var/log/haconiwa/${images[i]}
-}
+rm -rf /var/lib/haconiwa/hacos && ln -s /data/hacos /var/lib/haconiwa/hacos
+rm -rf /var/lib/haconiwa/images && ln -s /data/dist /var/lib/haconiwa/images
 
 # setup network
 brctl show haconiwa0 2>&1 | grep -i "no such device" && \

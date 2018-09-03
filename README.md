@@ -39,7 +39,29 @@ $ curl http://127.0.0.1:8080/
 $ ssh root@127.0.0.1 -p 8022
 
 # SMTP container
+$ printf "%s\0%s\0%s" foo foo password | openssl base64 -e
+YmFyAGJhcgBwYXNzd29yZA==
 $ telnet 127.0.0.1 8025
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+220 ubuntu-xenial ESMTP ready
+HELO local
+250 ubuntu-xenial
+AUTH PLAIN YmFyAGJhcgBwYXNzd29yZA==
+235 2.0.0 OK
+
+$ printf "%s\0%s\0%s" foo foo password | openssl base64 -e
+Zm9vAGZvbwBwYXNzd29yZA==
+$ telnet 127.0.0.1 8025
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+220 ubuntu-xenial ESMTP ready
+HELO local
+250 ubuntu-xenial
+AUTH PLAIN Zm9vAGZvbwBwYXNzd29yZA==
+235 2.0.0 OK
 ```
 
 Todo
