@@ -103,7 +103,7 @@ module Container
         debug("Stil no listen: #{ip}:#{port}") unless listen
         debug("Stil no lockfile: #{lockfile}'") unless file
 
-        usleep 100 * 1000
+        usleep 100 * 10000
         max -= 1
         raise 'it take too long time to begin listening, timeout' if max <= 0
       end
