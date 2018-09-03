@@ -17,12 +17,7 @@ type haconiwa >/dev/null 2>&1 || \
 test -d /var/log/haconiwa || mkdir -p /var/log/haconiwa
 test -d /var/lib/haconiwa/rootfs || mkdir -p /var/lib/haconiwa/rootfs
 rm -rf /var/lib/haconiwa/hacos && ln -s /data/hacos /var/lib/haconiwa/hacos
-
-# deploy container images
-for ((i = 0; i < ${#images[@]}; i++)) {
-  test -d /var/lib/haconiwa/images/${images[i]} || mkdir -p /var/lib/haconiwa/images/${images[i]}
-  tar xfp /data/dist/${images[i]}.image.tar -C /var/lib/haconiwa/images/${images[i]}
-}
+rm -rf /var/lib/haconiwa/images && ln -s /data/dist /var/lib/haconiwa/images
 
 # setup network
 brctl show haconiwa0 2>&1 | grep -i "no such device" && \

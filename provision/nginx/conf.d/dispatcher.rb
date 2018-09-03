@@ -81,9 +81,8 @@ module Container
     def setup_rootfs(root, haco, id)
       rootfs = "#{root}/rootfs/#{id}"
       return if File.exist?(rootfs)
-      shell_cmd = ['/bin/cp', '-r', "#{root}/images/#{haco}", rootfs]
-      debug(shell_cmd.join(' '))
-      clean_spawn(*shell_cmd)
+      system "/bin/mkdir -m 755 -p #{rootfs}"
+      system "/bin/tar xfp #{root}/images/#{haco}.image.tar -C #{rootfs}"
     end
 
     def run_haconiwa(ip, port, root, haco, id)
