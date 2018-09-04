@@ -1,0 +1,85 @@
+#!/bin/bash
+
+CLR_PASS="\\033[0;32m"
+CLR_FAIL="\\033[0;31m"
+CLR_WARN="\\033[0;33m"
+CLR_INFO="\\033[0;34m"
+CLR_RESET="\\033[0;39m"
+ALL_PASSED=0
+
+email=$1
+namespace='fast_container'
+
+function pass() {
+  echo -e "[${CLR_PASS}PASS${CLR_RESET}] $namespace $(echo $1 | sed -e "s/test_//")"
+}
+
+function fail() {
+  ALL_PASSED=1
+  echo -e "[${CLR_FAIL}FAIL${CLR_RESET}] $namespace $(echo $1 | sed -e "s/test_//")"
+  echo -e "${CLR_INFO}Expected${CLR_RESET}:"
+  echo -e "$2"
+  echo -e "${CLR_WARN}Actual${CLR_RESET}:"
+  echo -e "$3"
+}
+
+function test_http_ok() {
+  expected='200'
+  actual="$(curl -s http://127.0.0.1:8080/ -o /dev/null -w '%{http_code}')"
+
+  if [ "$actual" == "$expected" ]; then
+    pass "${FUNCNAME[0]}"
+  else
+    fail "${FUNCNAME[0]}" "$expected" "$actual"
+  fi
+}
+
+function test_ssh_login() {
+  expected='0'
+  actual="$(test/ssh 127.0.0.1 8022 root screencast; echo $?)"
+
+  if [ "$actual" == "$expected" ]; then
+    pass "${FUNCNAME[0]}"
+  else
+    fail "${FUNCNAME[0]}" "$expected" "$actual"
+  fi
+}
+
+function test_smtp_send_as_foo() {
+  auth='YmFyAGJhcgBwYXNzd29yZA=='
+  expected='0'
+  actual="$(test/smtp localhost $email $email $auth; echo $?)"
+
+  if [ "$actual" == "$expected" ]; then
+    pass "${FUNCNAME[0]}"
+  else
+    fail "${FUNCNAME[0]}" "$expected" "$actual"
+  fi
+}
+
+function test_smtp_send_as_bar() {
+  auth='Zm9vAGZvbwBwYXNzd29yZA=='
+  expected='0'
+  actual="$(test/smtp localhost $email $email $auth; echo $?)"
+
+  if [ "$actual" == "$expected" ]; then
+    pass "${FUNCNAME[0]}"
+  else
+    fail "${FUNCNAME[0]}" "$expected" "$actual"
+  fi
+}
+
+function run_test() {
+  self=$(cd $(dirname $0) && pwd)/$(basename $0)
+  tests="$(grep "^function test_" $self | sed -E "s/function (.*)\(\) \{/\1/g")"
+  for t in $(echo $tests); do
+    $t
+  done
+}
+
+if [ "$email" == "" ];then
+  echo "Usage: $0 test@example.com"
+  exit 1
+fi
+run_test
+exit $ALL_PASSED
