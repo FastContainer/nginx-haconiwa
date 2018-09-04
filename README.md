@@ -34,6 +34,10 @@ When the VM starts up, let's start the container with the request trigger in the
 ```sh
 # HTTP container
 $ curl http://127.0.0.1:8080/
+# same container
+$ curl -I 'Host: foo.test' http://127.0.0.1:8080/
+# another container
+$ curl -I 'Host: bar.test' http://127.0.0.1:8080/
 
 # SSH container (password: screencast)
 $ ssh root@127.0.0.1 -p 8022
