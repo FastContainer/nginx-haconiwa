@@ -1,0 +1,26 @@
+#!/usr/bin/expect
+
+set timeout 10
+
+proc abort {} {
+  puts $expect_out(buffer)
+  exit 2
+}
+
+if {$argc != 4} {
+  puts "Usage: $argv0 host port user password"
+  exit 1
+}
+
+set host [lindex $argv 0]
+set port [lindex $argv 1]
+set user [lindex $argv 2]
+set pass [lindex $argv 3]
+
+log_user 0
+spawn ssh $user@$host -p $port
+expect default abort -re ".*$user@$host's password: "
+send "$pass\n"
+expect default abort -re ".*:~#.*"
+send "exit\n"
+expect default abort -re ".*Connection to $host closed.*\n"
