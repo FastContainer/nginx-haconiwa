@@ -117,10 +117,6 @@ module Container
   end
 end
 
-def req
-  @req ||= Nginx::Request.new
-end
-
 def nginx_local_port
   Nginx::Stream::Connection.local_port
 rescue
