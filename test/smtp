@@ -1,0 +1,36 @@
+#!/usr/bin/expect
+
+set timeout 10
+
+proc abort {} {
+  puts $expect_out(buffer)
+  exit 2
+}
+
+if {$argc != 4} {
+  puts "Usage: $argv0 smtp_host from_addr to_addr auth"
+  exit 1
+}
+
+set host [lindex $argv 0]
+set fadr [lindex $argv 1]
+set tadr [lindex $argv 2]
+set auth [lindex $argv 3]
+
+log_user 0
+spawn telnet $host 8825
+expect default abort -re "220.*\n"
+send "HELO $host\r"
+expect default abort -re "250.*\n"
+send "AUTH PLAIN $auth\r"
+expect default abort -re "235.*\n"
+send "MAIL FROM:<$fadr>\r"
+expect default abort -re "250.*\n"
+send "RCPT TO:<$tadr>\r"
+expect default abort -re "250.*\n"
+send "DATA\r"
+expect default abort -re "354.*\n"
+send "From: $fadr\rTo: $tadr\rSubject: Hello\rThis is from postfix on fast container.\r.\r"
+expect default abort -re "250.*\n"
+send "QUIT\r"
+expect default abort -re "Connection closed.*\n"
