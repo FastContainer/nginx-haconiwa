@@ -39,9 +39,18 @@ $ curl http://127.0.0.1:8080/
 $ ssh root@127.0.0.1 -p 8022
 
 # SMTP container
+$ telnet 127.0.0.1 8025
+```
+
+SMTP AUTH and Multitenancy
+--
+
+![multitenancy](misc/multitenancy-fig.png)
+
+```sh
 $ printf "%s\0%s\0%s" foo foo password | openssl base64 -e
 YmFyAGJhcgBwYXNzd29yZA==
-$ telnet 127.0.0.1 8025
+$ telnet 127.0.0.1 8825
 Trying 127.0.0.1...
 Connected to localhost.
 Escape character is '^]'.
@@ -53,7 +62,7 @@ AUTH PLAIN YmFyAGJhcgBwYXNzd29yZA==
 
 $ printf "%s\0%s\0%s" foo foo password | openssl base64 -e
 Zm9vAGZvbwBwYXNzd29yZA==
-$ telnet 127.0.0.1 8025
+$ telnet 127.0.0.1 8825
 Trying 127.0.0.1...
 Connected to localhost.
 Escape character is '^]'.
@@ -63,11 +72,6 @@ HELO local
 AUTH PLAIN Zm9vAGZvbwBwYXNzd29yZA==
 235 2.0.0 OK
 ```
-
-SMTP AUTH and Multitenancy
---
-
-![multitenancy](misc/multitenancy-fig.png)
 
 Todo
 --
