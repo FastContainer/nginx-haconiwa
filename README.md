@@ -64,6 +64,11 @@ AUTH PLAIN Zm9vAGZvbwBwYXNzd29yZA==
 235 2.0.0 OK
 ```
 
+SMTP AUTH and Multitenancy
+--
+
+![multitenancy](misc/multitenancy-fig.png)
+
 Todo
 --
 
