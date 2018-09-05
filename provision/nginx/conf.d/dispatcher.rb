@@ -117,10 +117,6 @@ module Container
   end
 end
 
-def req
-  @req ||= Nginx::Request.new
-end
-
 def nginx_local_port
   Nginx::Stream::Connection.local_port
 rescue
@@ -136,21 +132,20 @@ lambda do
     return Container.dispatch_after_smtp_auth
   end
 
+  req = Nginx::Request.new
+
   case port
   when 80
+    ips = {
+      :'localhost' => '10.0.5.2',
+      :'127:0.0.1' => '10.0.5.2',
+      :'foo.test' => '10.0.5.2',
+      :'bar.test' => '10.0.5.3'
+    }
     haco = 'nginx'
-    cip = '10.0.5.2'
+    cip = ips[req.hostname.to_sym]
   when 8022
     haco = 'ssh'
-    cip = '10.0.5.3'
-  when 8025
-    haco = 'postfix'
-    cip = '10.0.5.4'
-  when 8587
-    haco = 'postfix'
-    cip = '10.0.5.4'
-  when 8465
-    haco = 'postfix'
     cip = '10.0.5.4'
   end
 
