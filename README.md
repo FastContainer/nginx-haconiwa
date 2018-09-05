@@ -31,29 +31,39 @@ $ vagrant up
 
 When the VM starts up, let's start the container with the request trigger in the following way.
 
+### HTTP
+
+HTTP container starts
+
 ```sh
-# HTTP container
 $ curl http://127.0.0.1:8080/
-# same container
+
+# HTTP foo container responds
 $ curl -I 'Host: foo.test' http://127.0.0.1:8080/
-# another container
+
+# HTTP bar container responds
 $ curl -I 'Host: bar.test' http://127.0.0.1:8080/
-
-# SSH container (password: screencast)
-$ ssh root@127.0.0.1 -p 8022
-
-# SMTP container
-$ telnet 127.0.0.1 8025
 ```
 
-SMTP AUTH and Multitenancy
---
+### SSH
 
-![multitenancy](misc/multitenancy-fig.png)
+SSH container starts
 
 ```sh
+$ ssh root@127.0.0.1 -p 8022
+# => password: screencast
+```
+
+### SMTP
+
+SMTP container starts
+
+```sh
+$ telnet 127.0.0.1 8025
+
 $ printf "%s\0%s\0%s" foo foo password | openssl base64 -e
 YmFyAGJhcgBwYXNzd29yZA==
+
 $ telnet 127.0.0.1 8825
 Trying 127.0.0.1...
 Connected to localhost.
@@ -63,6 +73,7 @@ HELO local
 250 ubuntu-xenial
 AUTH PLAIN YmFyAGJhcgBwYXNzd29yZA==
 235 2.0.0 OK
+# SMTP foo container responds
 
 $ printf "%s\0%s\0%s" foo foo password | openssl base64 -e
 Zm9vAGZvbwBwYXNzd29yZA==
@@ -75,12 +86,22 @@ HELO local
 250 ubuntu-xenial
 AUTH PLAIN Zm9vAGZvbwBwYXNzd29yZA==
 235 2.0.0 OK
+# SMTP bar container responds
 ```
+
+Multitenancy
+--
+
+HTTP determines the domain from the request host and SMTP determines the domain from SMTP AUTH. Then, upstream containers are dynamically selected from the discrimination.
+
+![multitenancy](misc/multitenancy-fig.png)
+
+SMTP AUTH uses [ngx_mail_core_module](http://nginx.org/en/docs/mail/ngx_mail_core_module.html).
 
 Todo
 --
 
-- [ ] Multitenancy
+- [x] Multitenancy
 - [ ] Auto Scaling
 - [ ] Multi Host
 
