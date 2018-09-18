@@ -1,9 +1,9 @@
 default: build_all
 
-nginx-haconiwa:
-	docker build -t nginx-haconiwa ./nginx-haconiwa
-	docker run --rm -v $(PWD)/nginx-haconiwa/builds:/builds -t nginx-haconiwa
-	mv ./nginx-haconiwa/builds/nginx* ./provision/dist/
+dispatcher:
+	docker build -t nginx-haconiwa ./nginx
+	docker run --rm -v $(PWD)/nginx/builds:/builds -t nginx-haconiwa
+	mv ./nginx/builds/nginx* ./provision/dist/
 
 base:
 	docker build -t haconiwa-container:base ./container/base
@@ -30,6 +30,6 @@ postfix:
 	docker rmi haconiwa-container:postfix
 
 build: base nginx ssh postfix
-build_all: nginx-haconiwa build
+build_all: dispatcher build
 
-.PHONY: nginx-haconiwa
+.PHONY: dispatcher
