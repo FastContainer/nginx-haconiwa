@@ -1,25 +1,21 @@
 containers:
-  default:
-    protocol: 'http'
-    ip: '10.0.5.2'
-    port: '80:80'
-  foo-http.test:
-    protocol: 'http'
-    ip: '10.0.5.3'
-    port: '80:80'
-  bar-http.test:
-    protocol: 'http'
+  http:
+    default:
+      haco: 'nginx'
+      ip: '10.0.5.2'
+    foo.test:
+      haco: 'nginx'
+      ip: '10.0.5.3'
+    bar.test:
+      haco: 'nginx'
+      ip: '10.0.5.4'
+  ssh:
+    haco: 'ssh'
     ip: '10.0.5.4'
-    port: '80:80'
-  foo-ssh:
-    protocol: 'ssh'
-    ip: '10.0.5.4'
-    port: '8022:22'
-  foo-smtp:
-    protocol: 'smtp'
-    ip: '10.0.5.5'
-    port: '8825:25'
-  bar-smtp:
-    protocol: 'smtp'
-    ip: '10.0.5.6'
-    port: '8825:25'
+  smtp:
+    foo:
+      haco: 'smtp'
+      ip: '10.0.5.5'
+    bar:
+      haco: 'smtp'
+      ip: '10.0.5.6'
