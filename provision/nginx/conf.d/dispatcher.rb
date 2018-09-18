@@ -126,6 +126,9 @@ rescue
 end
 
 lambda do
+  io = File.open('/etc/nginx/conf.d/spec.yml', 'r')
+  conf = YAML.load(io.read)
+
   port = nginx_local_port
 
   # smtp auth api
