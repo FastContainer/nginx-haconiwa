@@ -99,11 +99,11 @@ module Container
     def run
       result = "#{@ip}:#{@port}"
       if listen?
-        Container.debug('Already container launched')
+        Container.debug('Already container launched!')
         return result
       end
 
-      Container.debug('Launching a container')
+      Container.debug('Launching a container...')
       setup_rootfs
       start_haconiwa
       wait_for_listen("/var/lock/.#{@id}.hacolock")
