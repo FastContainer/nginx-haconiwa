@@ -2,20 +2,20 @@ containers:
   http:
     default:
       haco: 'nginx'
-      ip: '10.0.5.2'
+      ip: '10.0.5.10'
     foo.test:
       haco: 'nginx'
-      ip: '10.0.5.3'
+      ip: '10.0.5.11'
     bar.test:
       haco: 'nginx'
-      ip: '10.0.5.4'
+      ip: '10.0.5.12'
   ssh:
     haco: 'ssh'
-    ip: '10.0.5.4'
+    ip: '10.0.5.20'
   smtp:
     foo:
       haco: 'smtp'
-      ip: '10.0.5.5'
+      ip: '10.0.5.30'
     bar:
       haco: 'smtp'
-      ip: '10.0.5.6'
+      ip: '10.0.5.31'

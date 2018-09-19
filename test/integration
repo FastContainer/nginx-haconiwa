@@ -23,7 +23,7 @@ function fail() {
   echo -e "$3"
 }
 
-function test_http_ok() {
+function test_http_ok_as_localhost() {
   expected='200'
   actual="$(curl -s http://127.0.0.1:8080/ -o /dev/null -w '%{http_code}')"
 
@@ -35,8 +35,9 @@ function test_http_ok() {
 }
 
 function test_http_ok_as_foo() {
+  domain='foo.test'
   expected='200'
-  actual="$(curl -s -I 'Host: foo.test' http://127.0.0.1:8080/ -o /dev/null -w '%{http_code}')"
+  actual="$(curl -s -H "Host: $domain" http://127.0.0.1:8080/ -o /dev/null -w '%{http_code}')"
 
   if [ "$actual" == "$expected" ]; then
     pass "${FUNCNAME[0]}"
@@ -46,8 +47,9 @@ function test_http_ok_as_foo() {
 }
 
 function test_http_ok_as_bar() {
+  domain='bar.test'
   expected='200'
-  actual="$(curl -s -I 'Host: bar.test' http://127.0.0.1:8080/ -o /dev/null -w '%{http_code}')"
+  actual="$(curl -s -H "Host: $domain" http://127.0.0.1:8080/ -o /dev/null -w '%{http_code}')"
 
   if [ "$actual" == "$expected" ]; then
     pass "${FUNCNAME[0]}"
@@ -68,7 +70,7 @@ function test_ssh_login() {
 }
 
 function test_smtp_send_as_foo() {
-  auth='YmFyAGJhcgBwYXNzd29yZA=='
+  auth='Zm9vAGZvbwBwYXNzd29yZA=='
   expected='0'
   actual="$(test/smtp localhost $email $email $auth; echo $?)"
 
@@ -80,7 +82,7 @@ function test_smtp_send_as_foo() {
 }
 
 function test_smtp_send_as_bar() {
-  auth='Zm9vAGZvbwBwYXNzd29yZA=='
+  auth='YmFyAGJhcgBwYXNzd29yZA=='
   expected='0'
   actual="$(test/smtp localhost $email $email $auth; echo $?)"
 
