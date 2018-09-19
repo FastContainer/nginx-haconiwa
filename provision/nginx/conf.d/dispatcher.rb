@@ -5,33 +5,6 @@ CleanSpawn.cgroup_root_path = '/sys/fs/cgroup/systemd'
 
 module Container
   class << self
-    def dispatch_smtp_after_smtp_auth
-      containers = conf['containers']['smtp']
-      req = Nginx::Request.new
-
-      user = req.headers_in['Auth-User']
-      prot = req.headers_in['Auth-Protocol']
-      ip = containers[user]['ip']
-      port = 25
-      result = "#{ip}:#{port}"
-
-      req.headers_out['Auth-Status'] = -> do
-        unless containers.keys.include? user
-          debug("SMTP AUTH failed: unknown #{user}")
-          return 'invalid user'
-        end
-
-        req.headers_out['Auth-Server'] = ip
-        req.headers_out['Auth-Port'] = "#{port}"
-        dispatch('postfix', ip, port)
-
-        debug("SMTP AUTH success: #{user} to #{result}")
-        return 'OK'
-      end.call
-
-      return result
-    end
-
     def dispatch_http
       containers = conf['containers']['http']
       req = Nginx::Request.new
@@ -51,6 +24,44 @@ module Container
       c = Nginx::Stream::Connection.new 'dynamic_server'
       c.upstream_server = "#{cip}:#{cport}"
       dispatch(haco, cip, cport)
+    end
+
+    def dispatch_smtp_no_auth
+      containers = conf['containers']['smtp']
+      haco = containers['default']['haco']
+      cip = containers['default']['ip']
+      cport = 25
+      c = Nginx::Stream::Connection.new 'dynamic_server'
+      c.upstream_server = "#{cip}:#{cport}"
+      dispatch(haco, cip, cport)
+    end
+
+    def dispatch_smtp_after_smtp_auth
+      containers = conf['containers']['smtp']
+      req = Nginx::Request.new
+
+      user = req.headers_in['Auth-User']
+      prot = req.headers_in['Auth-Protocol']
+      cip = containers[user]['ip']
+      haco = containers[user]['haco']
+      cport = 25
+      result = "#{cip}:#{cport}"
+
+      req.headers_out['Auth-Status'] = -> do
+        unless containers.keys.include? user
+          debug("SMTP AUTH failed: unknown #{user}")
+          return 'invalid user'
+        end
+
+        req.headers_out['Auth-Server'] = cip
+        req.headers_out['Auth-Port'] = "#{cport}"
+        dispatch(haco, cip, cport)
+
+        debug("SMTP AUTH success: #{user} to #{result}")
+        return 'OK'
+      end.call
+
+      return result
     end
 
     def dispatch(haco = nil, ip = nil, port = nil)
@@ -167,6 +178,7 @@ end
 lambda do
   return case nginx_local_port
          when 58080 then Container.dispatch_smtp_after_smtp_auth
+         when 58025 then Container.dispatch_smtp_no_auth
          when 80 then Container.dispatch_http
          when 8022 then Container.dispatch_ssh
          end
