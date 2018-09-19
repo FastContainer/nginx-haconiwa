@@ -35,8 +35,9 @@ function test_http_ok_as_localhost() {
 }
 
 function test_http_ok_as_foo() {
+  domain='foo.test'
   expected='200'
-  actual="$(curl -s -I 'Host: foo.test' http://127.0.0.1:8080/ -o /dev/null -w '%{http_code}')"
+  actual="$(curl -s -H "Host: $domain" http://127.0.0.1:8080/ -o /dev/null -w '%{http_code}')"
 
   if [ "$actual" == "$expected" ]; then
     pass "${FUNCNAME[0]}"
@@ -46,8 +47,9 @@ function test_http_ok_as_foo() {
 }
 
 function test_http_ok_as_bar() {
+  domain='bar.test'
   expected='200'
-  actual="$(curl -s -I 'Host: bar.test' http://127.0.0.1:8080/ -o /dev/null -w '%{http_code}')"
+  actual="$(curl -s -H "Host: $domain" http://127.0.0.1:8080/ -o /dev/null -w '%{http_code}')"
 
   if [ "$actual" == "$expected" ]; then
     pass "${FUNCNAME[0]}"
