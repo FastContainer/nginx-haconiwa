@@ -23,7 +23,7 @@ function fail() {
   echo -e "$3"
 }
 
-function test_http_ok() {
+function test_http_ok_as_localhost() {
   expected='200'
   actual="$(curl -s http://127.0.0.1:8080/ -o /dev/null -w '%{http_code}')"
 
