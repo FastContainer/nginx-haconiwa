@@ -14,7 +14,7 @@ containers:
     ip: '10.0.5.20'
   smtp:
     default:
-      haco: 'postfix-bench'
+      haco: 'postfix'
       ip: '10.0.5.30'
     foo:
       haco: 'postfix'

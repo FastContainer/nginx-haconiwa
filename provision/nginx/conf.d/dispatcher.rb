@@ -33,7 +33,7 @@ module Container
       cport = 25
       c = Nginx::Stream::Connection.new 'dynamic_server'
       c.upstream_server = "#{cip}:#{cport}"
-      dispatch(haco, cip, cport)
+      dispatch(haco, cip, cport, ['BENCH=true'])
     end
 
     def dispatch_smtp_after_smtp_auth
@@ -64,10 +64,10 @@ module Container
       return result
     end
 
-    def dispatch(haco = nil, ip = nil, port = nil)
+    def dispatch(haco = nil, ip = nil, port = nil, env = [])
       raise "Not enough container info -- haco: #{haco}, ip: #{ip} port: #{port}" \
         if haco.nil? || ip.nil? || port.nil?
-      return Dispatcher.new(ip, port, haco).run
+      return Dispatcher.new(ip, port, haco, env).run
     rescue => e
       err(e.message)
       return ''
@@ -98,13 +98,15 @@ module Container
   end
 
   class Dispatcher
-    def initialize(ip, port, haco)
+    def initialize(ip, port, haco, env = [])
       @ip = ip
       @port = port
       @haco = haco
 
       @root = '/var/lib/haconiwa'
       @id = "#{@haco}-#{@ip.gsub('.', '-')}"
+      @environment = ["IP=#{@ip}", "PORT=#{@port}", "ID=#{@id}"]
+      @environment.concat(env) if env.length > 0
     end
 
     def run
@@ -131,7 +133,7 @@ module Container
     end
 
     def env
-      ['/usr/bin/env', "IP=#{@ip}", "PORT=#{@port}", "ID=#{@id}"].join(' ')
+      @environment.unshift('/usr/bin/env').join(' ')
     end
 
     def command
