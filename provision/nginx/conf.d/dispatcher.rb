@@ -123,11 +123,14 @@ module Container
       ['/usr/bin/env', "IP=#{@ip}", "PORT=#{@port}", "ID=#{@id}"].join(' ')
     end
 
+    def command
+      [env, '/usr/bin/haconiwa', 'start', "#{@root}/hacos/#{@haco}.haco"].join(' ')
+    end
+
     def start_haconiwa
-      cmd = [env, '/usr/bin/haconiwa', 'start', "#{@root}/hacos/#{@haco}.haco"].join(' ')
-      shell_cmd = ['/bin/bash', '-c', "#{cmd} >> /var/log/nginx/haconiwa.log 2>&1"]
-      Container.debug(shell_cmd.join(' '))
-      clean_spawn(*shell_cmd)
+      shell = ['/bin/bash', '-c', "#{command} >> /var/log/nginx/haconiwa.log 2>&1"]
+      Container.debug(shell.join(' '))
+      clean_spawn(*shell)
     end
 
     def wait_for_listen(lockfile, max = 100)
