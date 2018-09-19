@@ -90,6 +90,8 @@ module Container
     def initialize(ip, port, haco)
       @ip = ip
       @port = port
+      @haco = haco
+
       @root = '/var/lib/haconiwa'
       @id = "#{@haco}-#{@ip.gsub('.', '-')}"
     end
@@ -104,7 +106,7 @@ module Container
       Container.debug('Launching a container')
       setup_rootfs
       start_haconiwa
-      wait_for_listen("/var/lock/.#{id}.hacolock")
+      wait_for_listen("/var/lock/.#{@id}.hacolock")
 
       Container.debug("Return ip: #{@ip} port: #{@port}")
       return result
