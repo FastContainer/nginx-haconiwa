@@ -6,7 +6,7 @@ CleanSpawn.cgroup_root_path = '/sys/fs/cgroup/systemd'
 module Container
   class << self
     def dispatch_smtp_after_smtp_auth
-      containers = Container.conf['containers']['smtp']
+      containers = conf['containers']['smtp']
       req = Nginx::Request.new
 
       user = req.headers_in['Auth-User']
@@ -23,7 +23,6 @@ module Container
 
         req.headers_out['Auth-Server'] = ip
         req.headers_out['Auth-Port'] = "#{port}"
-
         dispatch('postfix', ip, port)
 
         debug("SMTP AUTH success: #{user} to #{result}")
@@ -34,38 +33,30 @@ module Container
     end
 
     def dispatch_http
-      containers = Container.conf['containers']['http']
+      containers = conf['containers']['http']
       req = Nginx::Request.new
       haco, cip = if containers.include?(req.hostname)
           [containers[req.hostname]['haco'], containers[req.hostname]['ip']]
         else
           [containers['default']['haco'], containers['default']['ip']]
         end
-      Container.dispatch(haco, cip, 80)
+      dispatch(haco, cip, 80)
     end
 
     def dispatch_ssh
-      containers = Container.conf['containers']['ssh']
+      containers = conf['containers']['ssh']
       haco = containers['haco']
       cip = containers['ip']
       cport = 22
       c = Nginx::Stream::Connection.new 'dynamic_server'
       c.upstream_server = "#{cip}:#{cport}"
-      Container.dispatch(haco, cip, cport)
+      dispatch(haco, cip, cport)
     end
 
     def dispatch(haco = nil, ip = nil, port = nil)
       raise "Not enough container info -- haco: #{haco}, ip: #{ip} port: #{port}" \
         if haco.nil? || ip.nil? || port.nil?
-
-      result = "#{ip}:#{port}"
-      return result if listen?(ip, port)
-
-      debug('Launch a container')
-      run(haco, ip, port)
-      debug("Return ip: #{ip} port: #{port}")
-      return result
-
+      return Dispatcher.new(ip, port, haco).run
     rescue => e
       err(e.message)
       return ''
@@ -83,52 +74,6 @@ module Container
       Nginx::Stream.log Nginx::Stream::LOG_ERR, "#{self.name} -- #{m}"
     end
 
-    def run(haco, ip, port)
-      root = '/var/lib/haconiwa'
-      id = "#{haco}-#{ip.gsub('.', '-')}"
-      setup_rootfs(root, haco, id)
-      run_haconiwa(ip, port, root, haco, id)
-      wait_for_listen("/var/lock/.#{id}.hacolock", ip, port)
-    end
-
-    def setup_rootfs(root, haco, id)
-      rootfs = "#{root}/rootfs/#{id}"
-      return if File.exist?(rootfs)
-      system "/bin/mkdir -m 755 -p #{rootfs}"
-      system "/bin/tar xfp #{root}/images/#{haco}.image.tar -C #{rootfs}"
-    end
-
-    def run_haconiwa(ip, port, root, haco, id)
-      env = '/usr/bin/env'
-      envs = [env, "IP=#{ip}", env, "PORT=#{port}", env, "ID=#{id}"].join(' ')
-      cmd = [envs, '/usr/bin/haconiwa', 'run', "#{root}/hacos/#{haco}.haco"].join(' ')
-      shell_cmd = ['/bin/bash', '-c', "#{cmd} >> /var/log/nginx/haconiwa.log 2>&1"]
-      debug(shell_cmd.join(' '))
-      clean_spawn(*shell_cmd)
-    end
-
-    def wait_for_listen(lockfile, ip, port, max = 100)
-      while true
-        listen = listen?(ip, port)
-        file = File.exist?(lockfile)
-
-        return if listen && file
-        debug("Stil no listen: #{ip}:#{port}") unless listen
-        debug("Stil no lockfile: #{lockfile}'") unless file
-
-        usleep 100 * 10000
-        max -= 1
-        raise 'it take too long time to begin listening, timeout' if max <= 0
-      end
-    end
-
-    def listen?(ip, port)
-      ::FastRemoteCheck.new('127.0.0.1', 0, ip, port, 3).connectable?
-    rescue => e
-      debug("FastRemoteCheck error: #{e.message}")
-      false
-    end
-
     def conf
       @@_conf ||= load_conf
     end
@@ -138,6 +83,76 @@ module Container
       io = File.open(path, 'r')
       Container.debug("Loaded conf: #{path}")
       YAML.load(io.read)
+    end
+  end
+
+  class Dispatcher
+    def initialize(ip, port, haco)
+      @ip = ip
+      @port = port
+      @haco = haco
+
+      @root = '/var/lib/haconiwa'
+      @id = "#{@haco}-#{@ip.gsub('.', '-')}"
+    end
+
+    def run
+      result = "#{@ip}:#{@port}"
+      if listen?
+        Container.debug('Already container launched!')
+        return result
+      end
+
+      Container.debug('Launching a container...')
+      setup_rootfs
+      start_haconiwa
+      wait_for_listen("/var/lock/.#{@id}.hacolock")
+
+      Container.debug("Return ip: #{@ip} port: #{@port}")
+      return result
+    end
+
+    def setup_rootfs
+      rootfs = "#{@root}/rootfs/#{@id}"
+      return if File.exist?(rootfs)
+      system "/bin/mkdir -m 755 -p #{rootfs}"
+      system "/bin/tar xfp #{@root}/images/#{@haco}.image.tar -C #{rootfs}"
+    end
+
+    def env
+      ['/usr/bin/env', "IP=#{@ip}", "PORT=#{@port}", "ID=#{@id}"].join(' ')
+    end
+
+    def command
+      [env, '/usr/bin/haconiwa', 'start', "#{@root}/hacos/#{@haco}.haco"].join(' ')
+    end
+
+    def start_haconiwa
+      shell = ['/bin/bash', '-c', "#{command} >> /var/log/nginx/haconiwa.log 2>&1"]
+      Container.debug(shell.join(' '))
+      clean_spawn(*shell)
+    end
+
+    def wait_for_listen(lockfile, max = 100)
+      while true
+        listen = listen?
+        file = File.exist?(lockfile)
+
+        return if listen && file
+        Container.debug("Stil no listen: #{@ip}:#{@port}") unless listen
+        Container.debug("Stil no lockfile: #{lockfile}'") unless file
+
+        usleep 100 * 10000
+        max -= 1
+        raise 'It take too long time to begin listening, timeout' if max <= 0
+      end
+    end
+
+    def listen?
+      ::FastRemoteCheck.new('127.0.0.1', 0, @ip, @port, 3).connectable?
+    rescue => e
+      Container.debug("FastRemoteCheck error: #{e.message}")
+      false
     end
   end
 end
