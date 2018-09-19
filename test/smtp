@@ -18,7 +18,7 @@ set tadr [lindex $argv 2]
 set auth [lindex $argv 3]
 
 log_user 0
-spawn telnet $host 8825
+spawn telnet $host 8025
 expect default abort -re "220.*\n"
 send "HELO $host\r"
 expect default abort -re "250.*\n"
