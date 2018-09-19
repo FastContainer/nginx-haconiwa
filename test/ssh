@@ -19,7 +19,7 @@ set pass [lindex $argv 3]
 
 log_user 0
 spawn ssh $user@$host -p $port
-expect default abort -re ".*$user@$host's password: "
+expect default abort -re ".*password: "
 send "$pass\n"
 expect default abort -re ".*:~#.*"
 send "exit\n"
