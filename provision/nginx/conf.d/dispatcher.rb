@@ -5,26 +5,18 @@ CleanSpawn.cgroup_root_path = '/sys/fs/cgroup/systemd'
 
 module Container
   class << self
-    def dispatch_after_smtp_auth
-      ips = {
-        foo: '10.0.5.5',
-        bar: '10.0.5.6'
-      }
-
-      ports = {
-        smtp: 25,
-        imap: 143
-      }
-
+    def dispatch_smtp_after_smtp_auth
+      containers = Container.conf['containers']['smtp']
       req = Nginx::Request.new
-      user = req.headers_in['Auth-User'].to_sym
-      prot = req.headers_in['Auth-Protocol'].to_sym
-      ip = ips[user]
-      port = ports[prot]
+
+      user = req.headers_in['Auth-User']
+      prot = req.headers_in['Auth-Protocol']
+      ip = containers[user]['ip']
+      port = 25
       result = "#{ip}:#{port}"
 
       req.headers_out['Auth-Status'] = -> do
-        unless ips.keys.include? user
+        unless containers.keys.include? user
           debug("SMTP AUTH failed: unknown #{user}")
           return 'invalid user'
         end
@@ -39,6 +31,27 @@ module Container
       end.call
 
       return result
+    end
+
+    def dispatch_http
+      containers = Container.conf['containers']['http']
+      req = Nginx::Request.new
+      haco, cip = if containers.include?(req.hostname)
+          [containers[req.hostname]['haco'], containers[req.hostname]['ip']]
+        else
+          [containers['default']['haco'], containers['default']['ip']]
+        end
+      Container.dispatch(haco, cip, 80)
+    end
+
+    def dispatch_ssh
+      containers = Container.conf['containers']['ssh']
+      haco = containers['haco']
+      cip = containers['ip']
+      cport = 22
+      c = Nginx::Stream::Connection.new 'dynamic_server'
+      c.upstream_server = "#{cip}:#{cport}"
+      Container.dispatch(haco, cip, cport)
     end
 
     def dispatch(haco = nil, ip = nil, port = nil)
@@ -86,8 +99,9 @@ module Container
     end
 
     def run_haconiwa(ip, port, root, haco, id)
-      env = ['/usr/bin/env', "IP=#{ip}", "PORT=#{port}", "ID=#{id}"].join(' ')
-      cmd = [env, '/usr/bin/haconiwa', 'run', "#{root}/hacos/#{haco}.haco"].join(' ')
+      env = '/usr/bin/env'
+      envs = [env, "IP=#{ip}", env, "PORT=#{port}", env, "ID=#{id}"].join(' ')
+      cmd = [envs, '/usr/bin/haconiwa', 'run', "#{root}/hacos/#{haco}.haco"].join(' ')
       shell_cmd = ['/bin/bash', '-c', "#{cmd} >> /var/log/nginx/haconiwa.log 2>&1"]
       debug(shell_cmd.join(' '))
       clean_spawn(*shell_cmd)
@@ -114,6 +128,17 @@ module Container
       debug("FastRemoteCheck error: #{e.message}")
       false
     end
+
+    def conf
+      @@_conf ||= load_conf
+    end
+
+    def load_conf
+      path = '/etc/nginx/conf.d/spec.yml'
+      io = File.open(path, 'r')
+      Container.debug("Loaded conf: #{path}")
+      YAML.load(io.read)
+    end
   end
 end
 
@@ -125,37 +150,9 @@ rescue
 end
 
 lambda do
-  port = nginx_local_port
-
-  # smtp auth api
-  if port == 58080
-    return Container.dispatch_after_smtp_auth
-  end
-
-  req = Nginx::Request.new
-
-  case port
-  when 80
-    ips = {
-      :'localhost' => '10.0.5.2',
-      :'127:0.0.1' => '10.0.5.2',
-      :'foo.test' => '10.0.5.2',
-      :'bar.test' => '10.0.5.3'
-    }
-    haco = 'nginx'
-    cip = ips[req.hostname.to_sym]
-  when 8022
-    haco = 'ssh'
-    cip = '10.0.5.4'
-  end
-
-  if port == 80
-    cport = port
-  else
-    cport = port - 8000
-    c = Nginx::Stream::Connection.new 'dynamic_server'
-    c.upstream_server = "#{cip}:#{cport}"
-  end
-
-  return Container.dispatch(haco, cip, cport)
+  return case nginx_local_port
+         when 58080 then Container.dispatch_smtp_after_smtp_auth
+         when 80 then Container.dispatch_http
+         when 8022 then Container.dispatch_ssh
+         end
 end.call

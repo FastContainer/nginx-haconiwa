@@ -1,0 +1,21 @@
+containers:
+  http:
+    default:
+      haco: 'nginx'
+      ip: '10.0.5.2'
+    foo.test:
+      haco: 'nginx'
+      ip: '10.0.5.3'
+    bar.test:
+      haco: 'nginx'
+      ip: '10.0.5.4'
+  ssh:
+    haco: 'ssh'
+    ip: '10.0.5.4'
+  smtp:
+    foo:
+      haco: 'smtp'
+      ip: '10.0.5.5'
+    bar:
+      haco: 'smtp'
+      ip: '10.0.5.6'

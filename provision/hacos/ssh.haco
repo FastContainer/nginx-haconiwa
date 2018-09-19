@@ -15,8 +15,8 @@ Haconiwa.define do |c|
 
   root = Pathname.new("/var/lib/haconiwa/rootfs/#{id}")
   c.init_command = ['/usr/sbin/sshd', '-D']
-  c.command.set_stdout(file: "/var/log/haconiwa/#{id}.out")
-  c.command.set_stderr(file: "/var/log/haconiwa/#{id}.err")
+  c.command.set_stdout(file: "/var/log/haconiwa.out")
+  c.command.set_stderr(file: "/var/log/haconiwa.err")
   c.chroot_to root
   c.daemonize!
 
