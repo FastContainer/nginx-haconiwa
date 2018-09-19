@@ -70,7 +70,7 @@ function test_ssh_login() {
 }
 
 function test_smtp_send_as_foo() {
-  auth='YmFyAGJhcgBwYXNzd29yZA=='
+  auth='Zm9vAGZvbwBwYXNzd29yZA=='
   expected='0'
   actual="$(test/smtp localhost $email $email $auth; echo $?)"
 
@@ -82,7 +82,7 @@ function test_smtp_send_as_foo() {
 }
 
 function test_smtp_send_as_bar() {
-  auth='Zm9vAGZvbwBwYXNzd29yZA=='
+  auth='YmFyAGJhcgBwYXNzd29yZA=='
   expected='0'
   actual="$(test/smtp localhost $email $email $auth; echo $?)"
 
