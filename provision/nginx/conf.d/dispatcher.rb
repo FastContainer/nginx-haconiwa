@@ -5,33 +5,6 @@ CleanSpawn.cgroup_root_path = '/sys/fs/cgroup/systemd'
 
 module Container
   class << self
-    def dispatch_smtp_after_smtp_auth
-      containers = conf['containers']['smtp']
-      req = Nginx::Request.new
-
-      user = req.headers_in['Auth-User']
-      prot = req.headers_in['Auth-Protocol']
-      ip = containers[user]['ip']
-      port = 25
-      result = "#{ip}:#{port}"
-
-      req.headers_out['Auth-Status'] = -> do
-        unless containers.keys.include? user
-          debug("SMTP AUTH failed: unknown #{user}")
-          return 'invalid user'
-        end
-
-        req.headers_out['Auth-Server'] = ip
-        req.headers_out['Auth-Port'] = "#{port}"
-        dispatch('postfix', ip, port)
-
-        debug("SMTP AUTH success: #{user} to #{result}")
-        return 'OK'
-      end.call
-
-      return result
-    end
-
     def dispatch_http
       containers = conf['containers']['http']
       req = Nginx::Request.new
@@ -53,10 +26,48 @@ module Container
       dispatch(haco, cip, cport)
     end
 
-    def dispatch(haco = nil, ip = nil, port = nil)
+    def dispatch_smtp_no_auth
+      containers = conf['containers']['smtp']
+      haco = containers['default']['haco']
+      cip = containers['default']['ip']
+      cport = 25
+      c = Nginx::Stream::Connection.new 'dynamic_server'
+      c.upstream_server = "#{cip}:#{cport}"
+      dispatch(haco, cip, cport, ['BENCH=true'])
+    end
+
+    def dispatch_smtp_after_smtp_auth
+      containers = conf['containers']['smtp']
+      req = Nginx::Request.new
+
+      user = req.headers_in['Auth-User']
+      prot = req.headers_in['Auth-Protocol']
+      cip = containers[user]['ip']
+      haco = containers[user]['haco']
+      cport = 25
+      result = "#{cip}:#{cport}"
+
+      req.headers_out['Auth-Status'] = -> do
+        unless containers.keys.include? user
+          debug("SMTP AUTH failed: unknown #{user}")
+          return 'invalid user'
+        end
+
+        req.headers_out['Auth-Server'] = cip
+        req.headers_out['Auth-Port'] = "#{cport}"
+        dispatch(haco, cip, cport)
+
+        debug("SMTP AUTH success: #{user} to #{result}")
+        return 'OK'
+      end.call
+
+      return result
+    end
+
+    def dispatch(haco = nil, ip = nil, port = nil, env = [])
       raise "Not enough container info -- haco: #{haco}, ip: #{ip} port: #{port}" \
         if haco.nil? || ip.nil? || port.nil?
-      return Dispatcher.new(ip, port, haco).run
+      return Dispatcher.new(ip, port, haco, env).run
     rescue => e
       err(e.message)
       return ''
@@ -87,13 +98,15 @@ module Container
   end
 
   class Dispatcher
-    def initialize(ip, port, haco)
+    def initialize(ip, port, haco, env = [])
       @ip = ip
       @port = port
       @haco = haco
 
       @root = '/var/lib/haconiwa'
       @id = "#{@haco}-#{@ip.gsub('.', '-')}"
+      @environment = ["IP=#{@ip}", "PORT=#{@port}", "ID=#{@id}"]
+      @environment.concat(env) if env.length > 0
     end
 
     def run
@@ -120,7 +133,7 @@ module Container
     end
 
     def env
-      ['/usr/bin/env', "IP=#{@ip}", "PORT=#{@port}", "ID=#{@id}"].join(' ')
+      @environment.unshift('/usr/bin/env').join(' ')
     end
 
     def command
@@ -167,6 +180,7 @@ end
 lambda do
   return case nginx_local_port
          when 58080 then Container.dispatch_smtp_after_smtp_auth
+         when 58025 then Container.dispatch_smtp_no_auth
          when 80 then Container.dispatch_http
          when 8022 then Container.dispatch_ssh
          end

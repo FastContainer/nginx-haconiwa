@@ -13,9 +13,12 @@ containers:
     haco: 'ssh'
     ip: '10.0.5.20'
   smtp:
-    foo:
-      haco: 'smtp'
+    default:
+      haco: 'postfix'
       ip: '10.0.5.30'
-    bar:
-      haco: 'smtp'
+    foo:
+      haco: 'postfix'
       ip: '10.0.5.31'
+    bar:
+      haco: 'postfix'
+      ip: '10.0.5.32'

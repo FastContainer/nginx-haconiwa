@@ -47,3 +47,7 @@ test -f /etc/nginx/tls.key || \
   -subj "/C=/ST=/L=/O=/OU=/CN=${common_name}" >/dev/null 2>&1
 
 systemctl enable nginx && systemctl start nginx
+
+# for smtp bench
+export DEBIAN_FRONTEND=noninteractive
+apt install -y postfix
