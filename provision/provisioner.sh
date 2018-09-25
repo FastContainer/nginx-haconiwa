@@ -41,10 +41,10 @@ rm -rf /etc/nginx/nginx.conf && \
 rm -rf /etc/nginx/conf.d && \
   ln -s /data/nginx/conf.d /etc/nginx/conf.d
 
-test -f /etc/nginx/tls.key || \
+test -f /etc/nginx/tls.crt || \
   openssl req -x509 -days 365 -newkey rsa:2048 -nodes \
   -out /etc/nginx/tls.crt -keyout /etc/nginx/tls.key \
-  -subj "/C=/ST=/L=/O=/OU=/CN=${common_name}" >/dev/null 2>&1
+  -subj "/C=JP/ST=Fukuoka/L=Fukuoka/O=FastContainer/OU=Haconiwa/CN=${common_name}" >/dev/null 2>&1
 
 systemctl enable nginx && systemctl start nginx
 
