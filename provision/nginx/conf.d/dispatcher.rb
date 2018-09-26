@@ -13,7 +13,7 @@ module Container
         else
           [containers['default']['haco'], containers['default']['ip']]
         end
-      dispatch(haco, cip, 80)
+      dispatch(haco, cip, 80, [], req.hostname)
     end
 
     def dispatch_ssh
@@ -64,10 +64,10 @@ module Container
       return result
     end
 
-    def dispatch(haco = nil, ip = nil, port = nil, env = [])
+    def dispatch(haco = nil, ip = nil, port = nil, env = [], hostname = '')
       raise "Not enough container info -- haco: #{haco}, ip: #{ip} port: #{port}" \
         if haco.nil? || ip.nil? || port.nil?
-      return Dispatcher.new(ip, port, haco, env).run
+      return Dispatcher.new(ip, port, haco, env, hostname).run
     rescue => e
       err(e.message)
       return ''
@@ -98,7 +98,7 @@ module Container
   end
 
   class Dispatcher
-    def initialize(ip, port, haco, env = [])
+    def initialize(ip, port, haco, env = [], hostname = '')
       @ip = ip
       @port = port
       @haco = haco
@@ -107,6 +107,7 @@ module Container
       @id = "#{@haco}-#{@ip.gsub('.', '-')}"
       @environment = ["IP=#{@ip}", "PORT=#{@port}", "ID=#{@id}"]
       @environment.concat(env) if env.length > 0
+      @hostname = hostname
     end
 
     def run
@@ -130,6 +131,14 @@ module Container
       return if File.exist?(rootfs)
       system "/bin/mkdir -m 755 -p #{rootfs}"
       system "/bin/tar xfp #{@root}/images/#{@haco}.image.tar -C #{rootfs}"
+      setup_welcome_html(rootfs) if @haco == 'nginx'
+    end
+
+    def setup_welcome_html(root)
+      html = "#{root}/var/www/html/index.nginx-debian.html"
+      cmd = ['/bin/sed', '-i', "'s/Welcome to nginx!/Welcome to #{@hostname}/g'", html].join(' ')
+      Container.debug(cmd)
+      system cmd
     end
 
     def env
