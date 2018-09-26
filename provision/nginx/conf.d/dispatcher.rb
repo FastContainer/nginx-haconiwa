@@ -135,7 +135,7 @@ module Container
     end
 
     def setup_welcome_html(root)
-      html = "#{root}/usr/share/nginx/html/index.html"
+      html = "#{root}/var/www/html/index.nginx-debian.html"
       cmd = ['/bin/sed', '-i', "'s/Welcome to nginx!/Welcome to #{@hostname}/g'", html].join(' ')
       Container.debug(cmd)
       system cmd
