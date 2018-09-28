@@ -13,6 +13,8 @@ Vagrant.configure('2') do |config|
     config.vm.network 'forwarded_port', guest: p, host: p
   end
 
+  config.vm.network 'forwarded_port', guest: 19999, host: 19999
+
   config.vm.provider 'virtualbox' do |vb|
     vb.memory = '1024'
   end
