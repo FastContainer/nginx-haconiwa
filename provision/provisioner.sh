@@ -51,3 +51,6 @@ systemctl enable nginx && systemctl start nginx
 # for smtp bench
 export DEBIAN_FRONTEND=noninteractive
 apt install -y postfix
+
+# netdata
+bash <(curl -Ss https://my-netdata.io/kickstart.sh) all --non-interactive
