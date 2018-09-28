@@ -9,7 +9,7 @@ Haconiwa.define do |c|
   id = ENV['ID']
   ip = ENV['IP']
   port = ENV['PORT']
-  bench = ENV['BENCH']
+  bench = ENV['BENCH'] || 'false'
 
   c.name = id
   c.environ = { 'maildomain' => 'example.com', 'bench' => bench }
