@@ -1,11 +1,10 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-
-Haconiwa.define do |c|
   def Kernel.container_working?(ip, port, veth)
     system "netstat -nt | grep -v TIME_WAIT | awk '{print $5}' | grep #{ip}:#{port}"
   end
 
+Haconiwa.define do |c|
   id = ENV['ID']
   ip = ENV['IP']
   port = ENV['PORT']

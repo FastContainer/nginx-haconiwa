@@ -11,7 +11,7 @@ locale-gen ja_JP.UTF-8
 # install haconiwa
 type haconiwa >/dev/null 2>&1 || \
   curl -s https://packagecloud.io/install/repositories/udzura/haconiwa/script.deb.sh | bash && \
-  apt install -y haconiwa
+  apt install -y 'haconiwa=0.9.4-1'
 
 # deploy hacofile
 test -d /var/log/haconiwa || mkdir -p /var/log/haconiwa
@@ -54,3 +54,5 @@ apt install -y postfix
 
 # netdata
 bash <(curl -Ss https://my-netdata.io/kickstart.sh) all --non-interactive
+
+tar -xf /var/lib/haconiwa/images/ssh.image.tar -C /var/lib/haconiwa/rootfs/nginx-10-0-5-10/
