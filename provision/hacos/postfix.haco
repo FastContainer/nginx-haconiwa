@@ -12,7 +12,7 @@ Haconiwa.define do |c|
   bench = ENV['BENCH'] || 'false'
 
   c.name = id
-  c.environ = { 'maildomain' => 'example.com', 'bench' => bench }
+  c.environ = { 'maildomain' => id, 'bench' => bench }
 
   root = Pathname.new("/var/lib/haconiwa/rootfs/#{id}")
   c.init_command = ['/entry.sh']
