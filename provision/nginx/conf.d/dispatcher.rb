@@ -131,7 +131,14 @@ module Container
       return if File.exist?(rootfs)
       system "/bin/mkdir -m 755 -p #{rootfs}"
       system "/bin/tar xfp #{@root}/images/#{@haco}.image.tar -C #{rootfs}"
+      setup_hosts(rootfs)
       setup_welcome_html(rootfs) if @haco == 'nginx'
+    end
+
+    def setup_hosts(root)
+      cmd = ['/bin/cat', '/data/hosts', '>>', "#{root}/etc/hosts"].join(' ')
+      Container.debug(cmd)
+      system cmd
     end
 
     def setup_welcome_html(root)

@@ -8,17 +8,7 @@ Vagrant.configure('2') do |config|
     vb.cpus = 1
   end
 
-  hosts = <<-HOSTS
-  grep 192.168.30 /etc/hosts >/dev/null
-  if [ $? -eq 1 ]; then
-cat << EOF >> /etc/hosts
-192.168.30.10 containers.test
-192.168.30.11 smtp-server.test
-192.168.30.12 smtp-client.test
-192.168.30.13 smtp-rcpt.test
-EOF
-  fi
-  HOSTS
+  hosts = 'grep 192.168.30 /etc/hosts >/dev/null || cat /data/hosts >> /etc/hosts'
 
   config.vm.define 'containers', primary: true do |c|
     c.vm.network 'forwarded_port', guest: 19999, host: 9000
