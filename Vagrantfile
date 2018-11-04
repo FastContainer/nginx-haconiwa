@@ -8,8 +8,6 @@ Vagrant.configure('2') do |config|
     vb.cpus = 1
   end
 
-  hosts = 'grep 192.168.30 /etc/hosts >/dev/null || cat /data/hosts >> /etc/hosts'
-
   config.vm.define 'containers', primary: true do |c|
     c.vm.network 'forwarded_port', guest: 19999, host: 9000
 
@@ -24,7 +22,6 @@ Vagrant.configure('2') do |config|
 
     c.vm.synced_folder './provision', '/data'
     c.vm.provision 'shell', path: 'provision/containers.sh'
-    c.vm.provision 'shell', inline: hosts
     c.vm.hostname = 'containers'
     c.vm.network :private_network, ip:'192.168.30.10'
   end
@@ -32,24 +29,24 @@ Vagrant.configure('2') do |config|
 
   config.vm.define 'smtp-server', autostart: false do |c|
     c.vm.network 'forwarded_port', guest: 19999, host: 9001
+    c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
     c.vm.provision 'shell', path: 'provision/smtp.sh'
-    c.vm.provision 'shell', inline: hosts
     c.vm.hostname = 'smtp-server'
     c.vm.network :private_network, ip:'192.168.30.11'
   end
 
   config.vm.define 'smtp-client', autostart: false do |c|
     c.vm.network 'forwarded_port', guest: 19999, host: 9002
+    c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
     c.vm.provision 'shell', path: 'provision/smtp.sh'
-    c.vm.provision 'shell', inline: hosts
     c.vm.hostname = 'smtp-client'
     c.vm.network :private_network, ip:'192.168.30.12'
   end
 
   config.vm.define 'smtp-rcpt', autostart: false do |c|
     c.vm.network 'forwarded_port', guest: 19999, host: 9003
+    c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
     c.vm.provision 'shell', path: 'provision/smtp.sh'
-    c.vm.provision 'shell', inline: hosts
     c.vm.hostname = 'smtp-rcpt'
     c.vm.network :private_network, ip:'192.168.30.13'
   end

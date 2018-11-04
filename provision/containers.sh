@@ -4,6 +4,8 @@ nginx_ver=1.13.12
 common_name=fastcontainer.local
 images=("nginx" "ssh" "postfix")
 
+grep 192.168.30 /etc/hosts >/dev/null || cat /data/hosts >> /etc/hosts
+
 apt upgrade -y
 apt install -y bridge-utils openssl curl
 locale-gen ja_JP.UTF-8
