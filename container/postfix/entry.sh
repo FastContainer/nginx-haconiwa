@@ -15,6 +15,6 @@ if [ "$bench" == "true" ]; then
 fi
 
 service rsyslog start
-service postfix start
+service postfix restart
 sleep 20
 tail -f /var/log/mail.log
