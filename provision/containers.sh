@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 nginx_ver=1.13.12
-common_name=fastcontainer.local
+common_name=fastcontainer.example
 images=("nginx" "ssh" "postfix")
 
 grep 192.168.30 /etc/hosts >/dev/null || cat /data/hosts >> /etc/hosts
