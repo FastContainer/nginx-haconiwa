@@ -1,4 +1,4 @@
-192.168.30.10 containers.vagrant
-192.168.30.11 smtp-server.vagrant
-192.168.30.12 smtp-client.vagrant
-192.168.30.13 smtp-rcpt.vagrant
+192.168.30.10 containers
+192.168.30.11 smtp-server
+192.168.30.12 smtp-client
+192.168.30.13 smtp-rcpt
