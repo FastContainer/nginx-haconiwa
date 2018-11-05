@@ -49,6 +49,3 @@ test -f /etc/nginx/tls.crt || \
   -subj "/C=JP/ST=Fukuoka/L=Fukuoka/O=FastContainer/OU=Haconiwa/CN=${common_name}" >/dev/null 2>&1
 
 systemctl enable nginx && systemctl start nginx
-
-# netdata
-bash <(curl -Ss https://my-netdata.io/kickstart.sh) all --non-interactive
