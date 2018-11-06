@@ -1,6 +1,8 @@
 # coding: utf-8
 # frozen_string_literal: true
 
+HACONIWA_BIN_PATH = '/usr/bin/haconiwa'
+IMAGES_ROOT = '/tmp/criu/images'
 CleanSpawn.cgroup_root_path = '/sys/fs/cgroup/systemd'
 
 module Container
@@ -67,7 +69,12 @@ module Container
     def dispatch(haco = nil, ip = nil, port = nil, env = [], hostname = '')
       raise "Not enough container info -- haco: #{haco}, ip: #{ip} port: #{port}" \
         if haco.nil? || ip.nil? || port.nil?
-      return Dispatcher.new(ip, port, haco, env, hostname).run
+
+      if ! File.exist?(IMAGES_ROOT + "/apache/core-1.img")
+        return Dispatcher.new(ip, port, haco, env, hostname).run
+      else
+        return Dispatcher.new(ip, port, haco, env, hostname).restore
+      end
     rescue => e
       err(e.message)
       return ''
@@ -104,8 +111,9 @@ module Container
       @haco = haco
 
       @root = '/var/lib/haconiwa'
-      @id = "#{@haco}-#{@ip.gsub('.', '-')}"
-      @environment = ["IP=#{@ip}", "PORT=#{@port}", "ID=#{@id}"]
+      @id = "#{@haco}-#{@ip.gsub('.', '-')}-#{Time.now.to_i}"
+      # @id = "#{@haco}-#{@ip.gsub('.', '-')}-1540895210"
+      @environment = ["IP=#{@ip}", "PORT=#{@port}", "ID=#{@id}", "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"]
       @environment.concat(env) if env.length > 0
       @hostname = hostname
     end
@@ -124,6 +132,22 @@ module Container
 
       Container.debug("Return ip: #{@ip} port: #{@port}")
       return result
+    end
+
+    def restore
+      result = "#{@ip}:#{@port}"
+      if listen?
+        Container.debug('Already container launched!')
+        return result
+      end
+
+      Container.debug('Restoreing a container...')
+
+      restore_haconiwa
+      wait_for_listen("/var/lock/.#{@id}.hacolock")
+
+      Container.debug("Return ip: #{@ip} port: #{@port}")
+      result
     end
 
     def setup_rootfs
@@ -146,7 +170,11 @@ module Container
     end
 
     def command
-      [env, '/usr/bin/haconiwa', 'start', "#{@root}/hacos/#{@haco}.haco"].join(' ')
+      [env, HACONIWA_BIN_PATH, 'start', "#{@root}/hacos/#{@haco}.haco"].join(' ')
+    end
+
+    def restore_command
+      [env, HACONIWA_BIN_PATH, 'restore', "#{@root}/hacos/#{@haco}.haco"].join(' ')
     end
 
     def start_haconiwa
@@ -155,7 +183,13 @@ module Container
       clean_spawn(*shell)
     end
 
-    def wait_for_listen(lockfile, max = 100)
+    def restore_haconiwa
+      shell = ['/bin/bash', '-c', "#{restore_command} >> /var/log/nginx/haconiwa.log 2>&1"]
+      Container.debug(shell.join(' '))
+      clean_spawn(*shell)
+    end
+
+    def wait_for_listen(lockfile, max = 1000000)
       while true
         listen = listen?
         file = File.exist?(lockfile)
@@ -164,16 +198,22 @@ module Container
         Container.debug("Stil no listen: #{@ip}:#{@port}") unless listen
         Container.debug("Stil no lockfile: #{lockfile}'") unless file
 
-        usleep 100 * 10000
+        usleep 10 * 1000
         max -= 1
         raise 'It take too long time to begin listening, timeout' if max <= 0
       end
     end
 
     def listen?
-      ::FastRemoteCheck.new('127.0.0.1', 0, @ip, @port, 3).connectable?
+      Container.debug("FastRemoteCheck start")
+      if ret = ::FastRemoteCheck.new('127.0.0.1', 0, @ip, @port, 3).connectable?
+        Container.debug("FastRemoteCheck ok")
+      else
+        Container.debug("FastRemoteCheck ng")
+      end
+      ret
     rescue => e
-      Container.debug("FastRemoteCheck error: #{e.message}")
+      Container.debug("FastRemoteCheck error: #{e.message} retry")
       false
     end
   end
