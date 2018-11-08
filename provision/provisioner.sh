@@ -54,5 +54,3 @@ apt install -y postfix
 
 # netdata
 bash <(curl -Ss https://my-netdata.io/kickstart.sh) all --non-interactive
-
-tar -xf /var/lib/haconiwa/images/ssh.image.tar -C /var/lib/haconiwa/rootfs/nginx-10-0-5-10/

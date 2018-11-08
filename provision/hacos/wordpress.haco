@@ -12,7 +12,7 @@ Haconiwa.define do |c|
   c.name = id
   c.workdir = '/root'
 
-  root = Pathname.new("/var/lib/haconiwa/rootfs/wordpress-10-0-5-20")
+  root = Pathname.new("/var/lib/haconiwa/rootfs/#{id}")
   c.init_command = ['/usr/sbin/apache2', '-k', 'start', '-DFOREGROUND']
   # c.init_command = ['/bin/sh', '-c', "sleep 1; exec /usr/sbin/apache2 -k start -DFOREGROUND"]
   c.command.set_stdout(file: "/var/log/haconiwa.out")
