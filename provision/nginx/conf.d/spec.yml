@@ -9,6 +9,9 @@ containers:
     bar.test:
       haco: 'nginx'
       ip: '10.0.5.12'
+    wordpress.test:
+      haco: 'wordpress'
+      ip: '10.0.5.13'
   ssh:
     haco: 'ssh'
     ip: '10.0.5.20'

@@ -1,11 +1,10 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-
-Haconiwa.define do |c|
   def Kernel.container_working?(ip, port, veth)
     system "netstat -nt | grep -v TIME_WAIT | awk '{print $5}' | grep #{ip}:#{port}"
   end
 
+Haconiwa.define do |c|
   id = ENV['ID']
   ip = ENV['IP']
   port = ENV['PORT']
@@ -44,7 +43,7 @@ Haconiwa.define do |c|
   c.capabilities.allow 'cap_sys_chroot'
   c.capabilities.allow 'cap_net_bind_service'
 
-  c.add_async_hook(msec: 3 * 60 * 1000) do |base|
+  c.add_async_hook(msec: 60 * 1000) do |base|
     if container_working?(ip, port, veth)
       Haconiwa::Logger.info "shutdown canceled because container(#{ip}:#{port} on #{veth}) still seems working. wait next shutdown"
       next
