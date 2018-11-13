@@ -40,7 +40,12 @@ Vagrant.configure('2') do |config|
   config.vm.define 'smtp-client', autostart: autostart do |c|
     c.vm.network 'forwarded_port', guest: 19999, host: 9002
     c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
-    c.vm.provision 'shell', path: 'provision/smtp.sh'
+    c.vm.provision 'shell', inline: <<-CMD
+      grep 192.168.30 /etc/hosts >/dev/null || cat /tmp/hosts >> /etc/hosts
+      apt update -y
+      apt install -y curl
+      locale-gen ja_JP.UTF-8
+    CMD
     c.vm.hostname = 'smtp-client'
     c.vm.network :private_network, ip:'192.168.30.12'
   end
