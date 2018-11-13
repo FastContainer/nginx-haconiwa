@@ -136,7 +136,10 @@ module Container
     end
 
     def setup_hosts(root)
-      cmd = ['/bin/cat', '/data/hosts', '>>', "#{root}/etc/hosts"].join(' ')
+      cmd = [
+        "/bin/echo \"127.0.0.1 localhost #{@id}\" >> #{root}/etc/hosts",
+        "/bin/cat /data/hosts >> #{root}/etc/hosts"
+      ].join(' && ')
       Container.debug(cmd)
       system cmd
     end
