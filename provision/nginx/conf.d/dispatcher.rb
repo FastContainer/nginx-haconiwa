@@ -26,14 +26,24 @@ module Container
       dispatch(haco, cip, cport)
     end
 
-    def dispatch_smtp_no_auth
+    def dispatch_smtp_no_auth1
       containers = conf['containers']['smtp']
-      haco = containers['default']['haco']
-      cip = containers['default']['ip']
+      haco = containers['noauth1']['haco']
+      cip = containers['noauth1']['ip']
       cport = 25
       c = Nginx::Stream::Connection.new 'dynamic_server'
       c.upstream_server = "#{cip}:#{cport}"
-      dispatch(haco, cip, cport, ['BENCH=true'])
+      dispatch(haco, cip, cport)
+    end
+
+    def dispatch_smtp_no_auth2
+      containers = conf['containers']['smtp']
+      haco = containers['noauth2']['haco']
+      cip = containers['noauth2']['ip']
+      cport = 25
+      c = Nginx::Stream::Connection.new 'dynamic_server'
+      c.upstream_server = "#{cip}:#{cport}"
+      dispatch(haco, cip, cport)
     end
 
     def dispatch_smtp_after_smtp_auth
@@ -199,7 +209,8 @@ end
 lambda do
   return case nginx_local_port
          when 58080 then Container.dispatch_smtp_after_smtp_auth
-         when 58025 then Container.dispatch_smtp_no_auth
+         when 58025 then Container.dispatch_smtp_no_auth1
+         when 58026 then Container.dispatch_smtp_no_auth2
          when 80 then Container.dispatch_http
          when 8022 then Container.dispatch_ssh
          end
