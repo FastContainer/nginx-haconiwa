@@ -8,19 +8,14 @@ Vagrant.configure('2') do |config|
     vb.cpus = 1
   end
 
-  autostart = !!ENV['SMTP']
-  #netdata = 'bash <(curl -Ss https://my-netdata.io/kickstart.sh) all --non-interactive'
-
   config.vm.define 'containers', primary: true do |c|
     %w(80 443).each do |port|
       c.vm.network 'forwarded_port', guest: port, host: "8#{port.rjust(3, '0')}"
     end
-
     %w(22 25).each do |port|
       p = "8#{port.rjust(3, '0')}"
       c.vm.network 'forwarded_port', guest: p, host: p
     end
-
     c.vm.network 'forwarded_port', guest: 19999, host: 9000
     c.vm.synced_folder './provision', '/data'
     c.vm.provision 'shell', path: 'provision/containers.sh'
@@ -28,9 +23,9 @@ Vagrant.configure('2') do |config|
     c.vm.network :private_network, ip:'192.168.30.10'
   end
 
+  autostart = !!ENV['SMTP']
 
   config.vm.define 'smtp-server', autostart: autostart do |c|
-    c.vm.network 'forwarded_port', guest: 19999, host: 9001
     c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
     c.vm.provision 'shell', path: 'provision/smtp.sh'
     c.vm.hostname = 'smtp-server'
@@ -38,7 +33,6 @@ Vagrant.configure('2') do |config|
   end
 
   config.vm.define 'smtp-client', autostart: autostart do |c|
-    c.vm.network 'forwarded_port', guest: 19999, host: 9002
     c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
     c.vm.provision 'shell', inline: <<-CMD
       grep 192.168.30 /etc/hosts >/dev/null || cat /tmp/hosts >> /etc/hosts
@@ -51,7 +45,6 @@ Vagrant.configure('2') do |config|
   end
 
   config.vm.define 'smtp-rcpt', autostart: autostart do |c|
-    c.vm.network 'forwarded_port', guest: 19999, host: 9003
     c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
     c.vm.provision 'shell', path: 'provision/smtp.sh'
     c.vm.hostname = 'smtp-rcpt'
