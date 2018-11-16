@@ -34,12 +34,8 @@ Vagrant.configure('2') do |config|
 
   config.vm.define 'smtp-client', autostart: autostart do |c|
     c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
-    c.vm.provision 'shell', inline: <<-CMD
-      grep 192.168.30 /etc/hosts >/dev/null || cat /tmp/hosts >> /etc/hosts
-      apt update -y
-      apt install -y curl
-      locale-gen ja_JP.UTF-8
-    CMD
+    c.vm.provision 'file', source: './provision/sender.sh', destination: '/tmp/sender.sh'
+    c.vm.provision 'shell', path: 'provision/smtp.sh'
     c.vm.hostname = 'smtp-client'
     c.vm.network :private_network, ip:'192.168.30.12'
   end
@@ -49,5 +45,13 @@ Vagrant.configure('2') do |config|
     c.vm.provision 'shell', path: 'provision/smtp.sh'
     c.vm.hostname = 'smtp-rcpt'
     c.vm.network :private_network, ip:'192.168.30.13'
+  end
+
+  config.vm.define 'smtp-tarpit', autostart: autostart do |c|
+    c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
+    c.vm.provision 'file', source: './provision/mxtarpit.service', destination: '/tmp/mxtarpit.service'
+    c.vm.provision 'shell', path: 'provision/smtp-tarpit.sh'
+    c.vm.hostname = 'smtp-tarpit'
+    c.vm.network :private_network, ip:'192.168.30.14'
   end
 end
