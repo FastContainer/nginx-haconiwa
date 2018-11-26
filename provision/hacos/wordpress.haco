@@ -1,0 +1,78 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+  def Kernel.container_working?(ip, port, veth)
+    system "netstat -nt | grep -v TIME_WAIT | awk '{print $5}' | grep #{ip}:#{port}"
+  end
+
+Haconiwa.define do |c|
+  id = ENV['ID'] || "wordpress-10-0-5-20"
+  ip = ENV['IP'] || "10.0.5.20"
+  port = ENV['PORT'] || "80"
+
+  c.name = id
+  c.workdir = '/root'
+
+  root = Pathname.new("/var/lib/haconiwa/rootfs/#{id}")
+  c.init_command = ['/usr/sbin/apache2', '-k', 'start', '-DFOREGROUND']
+  # c.init_command = ['/bin/sh', '-c', "sleep 1; exec /usr/sbin/apache2 -k start -DFOREGROUND"]
+  c.command.set_stdout(file: "/var/log/haconiwa.out")
+  c.command.set_stderr(file: "/var/log/haconiwa.err")
+  c.chroot_to root
+  c.environ = ENV.to_hash.merge({
+    'APACHE_PORT' => '80',
+    'APACHE_RUN_DIR' => '/var/run/apache2',
+    'APACHE_PID_FILE' => "/var/run/apache2/apache2.#{$$}.pid",
+    'APACHE_LOCK_DIR' => '/var/lock/apache2',
+    'APACHE_RUN_USER' => 'www-data',
+    'APACHE_RUN_GROUP' => 'www-data',
+    'APACHE_LOG_DIR' => '/var/log/apache2',
+  })
+  c.daemonize!
+
+  # c.lxcfs_root = '/var/lib/lxcfs'
+
+  c.mount_independent 'procfs'
+  c.mount_independent 'sysfs'
+  c.mount_independent 'devtmpfs'
+  c.mount_independent 'devpts'
+  c.mount_independent 'shm'
+  #c.mount_network_etc(root, host_root: '/etc')
+
+  c.namespace.unshare 'mount'
+  c.namespace.unshare 'ipc'
+  c.namespace.unshare 'uts'
+  c.namespace.unshare 'pid'
+
+  c.network.namespace = id
+  c.network.container_ip = ip
+  c.network.bridge_name = 'haconiwa0'
+  c.network.veth_host = veth = "veth#{::SHA1.sha1_hex(id)[0, 4]}"
+  c.network.veth_guest = 'veth0'
+
+  c.cgroup['pids.max'] = 1024
+  c.capabilities.allow 'cap_sys_chroot'
+  c.capabilities.allow 'cap_net_bind_service'
+
+  c.checkpoint do |checkpoint|
+    checkpoint.target_syscall :listen, 0
+    checkpoint.images_dir    = "/tmp/criu/images/apache"
+    checkpoint.criu_log_file = "-" # "/var/log/criu.all"
+    checkpoint.log_level = 4
+    checkpoint.criu_service_address = "/var/run/criu_service.socket"
+  end
+
+  c.add_async_hook(msec: 60 * 60 * 1000) do |base|
+    Haconiwa::Logger.info "Process going to stop gracefully: #{base.pid}, container not working on #{ip}:#{port}"
+    #::Process.kill :WINCH, base.pid
+    system "/bin/kill -WINCH #{base.pid}"
+
+    loop do
+      if container_working?(ip, port, veth)
+        Haconiwa::Logger.info "shutdown canceled because container(#{ip}:#{port} on #{veth}) still seems working. wait next shutdown"
+        usleep 10 * 1000
+      else
+        break
+      end
+    end
+  end
+end

@@ -13,7 +13,7 @@ locale-gen ja_JP.UTF-8
 # install haconiwa
 type haconiwa >/dev/null 2>&1 || \
   curl -s https://packagecloud.io/install/repositories/udzura/haconiwa/script.deb.sh | bash && \
-  apt install -y haconiwa
+  apt install -y haconiwa #'haconiwa=0.9.4-1'
 
 # deploy hacofile
 test -d /var/log/haconiwa || mkdir -p /var/log/haconiwa
