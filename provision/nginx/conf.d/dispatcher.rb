@@ -28,14 +28,24 @@ module Container
       dispatch(haco, cip, cport)
     end
 
-    def dispatch_smtp_no_auth
+    def dispatch_smtp_no_auth1
       containers = conf['containers']['smtp']
-      haco = containers['default']['haco']
-      cip = containers['default']['ip']
+      haco = containers['noauth1']['haco']
+      cip = containers['noauth1']['ip']
       cport = 25
       c = Nginx::Stream::Connection.new 'dynamic_server'
       c.upstream_server = "#{cip}:#{cport}"
-      dispatch(haco, cip, cport, ['BENCH=true'])
+      dispatch(haco, cip, cport)
+    end
+
+    def dispatch_smtp_no_auth2
+      containers = conf['containers']['smtp']
+      haco = containers['noauth2']['haco']
+      cip = containers['noauth2']['ip']
+      cport = 25
+      c = Nginx::Stream::Connection.new 'dynamic_server'
+      c.upstream_server = "#{cip}:#{cport}"
+      dispatch(haco, cip, cport)
     end
 
     def dispatch_smtp_after_smtp_auth
@@ -155,7 +165,17 @@ module Container
       return if File.exist?(rootfs)
       system "/bin/mkdir -m 755 -p #{rootfs}"
       system "/bin/tar xfp #{@root}/images/#{@haco}.image.tar -C #{rootfs}"
+      setup_hosts(rootfs)
       setup_welcome_html(rootfs) if @haco == 'nginx'
+    end
+
+    def setup_hosts(root)
+      cmd = [
+        "/bin/echo \"127.0.0.1 localhost #{@id}\" >> #{root}/etc/hosts",
+        "/bin/cat /data/hosts >> #{root}/etc/hosts"
+      ].join(' && ')
+      Container.debug(cmd)
+      system cmd
     end
 
     def setup_welcome_html(root)
@@ -229,7 +249,8 @@ end
 lambda do
   return case nginx_local_port
          when 58080 then Container.dispatch_smtp_after_smtp_auth
-         when 58025 then Container.dispatch_smtp_no_auth
+         when 58025 then Container.dispatch_smtp_no_auth1
+         when 58026 then Container.dispatch_smtp_no_auth2
          when 80 then Container.dispatch_http
          when 8022 then Container.dispatch_ssh
          end

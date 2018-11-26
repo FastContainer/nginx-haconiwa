@@ -26,7 +26,7 @@ Haconiwa.define do |c|
   c.mount_independent 'devtmpfs'
   c.mount_independent 'devpts'
   c.mount_independent 'shm'
-  c.mount_network_etc(root, host_root: '/etc')
+  c.add_mount_point('/etc/resolv.conf', to: "#{root}/etc/resolv.conf")
 
   c.namespace.unshare 'mount'
   c.namespace.unshare 'ipc'

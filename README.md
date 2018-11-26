@@ -59,12 +59,10 @@ $ ssh root@127.0.0.1 -p 8022
 SMTP container starts
 
 ```sh
-$ telnet 127.0.0.1 8025
-
 $ printf "%s\0%s\0%s" foo foo password | openssl base64 -e
 Zm9vAGZvbwBwYXNzd29yZA==
 
-$ telnet 127.0.0.1 8825
+$ telnet 127.0.0.1 8025
 Trying 127.0.0.1...
 Connected to localhost.
 Escape character is '^]'.
@@ -78,7 +76,7 @@ AUTH PLAIN Zm9vAGZvbwBwYXNzd29yZA==
 $ printf "%s\0%s\0%s" bar bar password | openssl base64 -e
 YmFyAGJhcgBwYXNzd29yZA==
 
-$ telnet 127.0.0.1 8825
+$ telnet 127.0.0.1 8025
 Trying 127.0.0.1...
 Connected to localhost.
 Escape character is '^]'.
