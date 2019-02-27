@@ -52,7 +52,17 @@ Haconiwa.define do |c|
       Haconiwa::Logger.info "shutdown canceled because container(#{ip}:#{port} on #{veth}) still seems working. wait next shutdown"
       next
     end
-    Haconiwa::Logger.info "Process killed: #{base.pid}, container not working on #{ip}:#{port}"
+    Haconiwa::Logger.info "process killed: #{base.pid}, container not working on #{ip}:#{port}"
     ::Process.kill :TERM, base.pid
+  end
+
+  c.add_general_hook :before_start_wait do |base|
+    Haconiwa::Logger.info "haconiwa hook: setup -- #{base.name}"
+    system "/usr/local/bin/cleanip add #{ip}"
+  end
+
+  c.add_general_hook :teardown do |base|
+    Haconiwa::Logger.info "haconiwa hook: teardown -- #{base.name}"
+    system "/usr/local/bin/delroute del #{ip}"
   end
 end
