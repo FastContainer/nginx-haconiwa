@@ -39,10 +39,10 @@ HTTP container starts
 $ curl http://127.0.0.1:8080/
 
 # HTTP foo container responds
-$ curl -I 'Host: foo.test' http://127.0.0.1:8080/
+$ curl -H 'Host: foo.test' http://127.0.0.1:8080/
 
 # HTTP bar container responds
-$ curl -I 'Host: bar.test' http://127.0.0.1:8080/
+$ curl -H 'Host: bar.test' http://127.0.0.1:8080/
 ```
 
 ### SSH
