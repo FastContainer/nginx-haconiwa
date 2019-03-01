@@ -26,7 +26,7 @@ Vagrant.configure('2') do |config|
     c.vm.provision 'shell', path: 'provision/containers.sh'
     c.vm.hostname = 'containers'
     c.vm.network :private_network, ip:'192.168.30.10'
-    c.vm.network :private_network, ip:'172.17.30.10'
+    c.vm.network :private_network, ip:'192.168.30.99'
   end
 
   autostart_bench = !!ENV['BENCH']
