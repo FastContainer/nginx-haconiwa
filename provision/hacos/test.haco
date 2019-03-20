@@ -1,0 +1,41 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+Haconiwa.define do |c|
+  id = ENV['ID']
+  ip = ENV['IP']
+  port = ENV['PORT']
+
+  c.name = id
+  c.workdir = '/root'
+
+  root = Pathname.new("/var/lib/haconiwa/rootfs/#{id}")
+  c.init_command = ['/bin/sh']
+  c.command.set_stdout(file: "/var/log/haconiwa.out")
+  c.command.set_stderr(file: "/var/log/haconiwa.err")
+  c.chroot_to root
+  #c.daemonize!
+
+  c.lxcfs_root = '/var/lib/lxcfs'
+
+  c.mount_independent 'procfs'
+  c.mount_independent 'sysfs'
+  c.mount_independent 'devtmpfs'
+  c.mount_independent 'devpts'
+  c.mount_independent 'shm'
+  c.add_mount_point('/etc/resolv.conf', to: "#{root}/etc/resolv.conf")
+
+  c.namespace.unshare 'mount'
+  c.namespace.unshare 'ipc'
+  c.namespace.unshare 'uts'
+  c.namespace.unshare 'pid'
+
+  c.network.namespace = id
+  c.network.container_ip = ip
+  c.network.bridge_name = 'haconiwa0'
+  c.network.veth_host = veth = "veth#{::SHA1.sha1_hex(id)[0, 4]}"
+  c.network.veth_guest = 'eth0'
+
+  c.cgroup['pids.max'] = 1024
+  c.capabilities.allow 'cap_sys_chroot'
+  c.capabilities.allow 'cap_net_bind_service'
+end

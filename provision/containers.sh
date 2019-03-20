@@ -49,3 +49,6 @@ test -f /etc/nginx/tls.crt || \
   -subj "/C=JP/ST=Fukuoka/L=Fukuoka/O=FastContainer/OU=Haconiwa/CN=${common_name}" >/dev/null 2>&1
 
 systemctl enable nginx && systemctl start nginx
+
+# add script
+rm -rf /usr/local/bin/cleanip && ln -s /data/cleanip /usr/local/bin/cleanip

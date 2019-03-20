@@ -1,0 +1,29 @@
+#!/bin/bash
+
+CLEANIF=enp0s9
+CLEANIP=$(ifconfig $CLEANIF | grep inet | grep -v inet6 | awk '{print $2}')
+
+CMD=$1
+PRIVATEIP=$2
+
+usage() {
+  echo $"Usage: $0 {add|del} [PRIVATE IP]"
+  exit 2
+}
+
+if [ -z "$CMD" ] || [ -z "$PRIVATEIP" ]; then
+  usage
+fi
+
+case "$CMD" in
+  "add")
+    /sbin/iptables -t nat -I POSTROUTING -o $CLEANIF -s $PRIVATEIP ! -d $PRIVATEIP -j MASQUERADE && exit 0
+    ;;
+  "del")
+    number=/sbin/iptables -t nat -L --line-numbers | grep $PRIVATEIP | awk '{print $1}'
+    test -z $number && exit 1
+    /sbin/iptables -t nat -D POSTROUTING $number && exit 0
+    ;;
+  *)
+    usage
+esac
