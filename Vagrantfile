@@ -51,6 +51,8 @@ apt -y install apache2-utils
   config.vm.define 'smtp-server', autostart: autostart_smtp do |c|
     c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
     c.vm.provision 'shell', path: 'provision/smtp.sh'
+    c.vm.provision 'shell', path: 'provision/netdata.sh'
+    c.vm.network 'forwarded_port', guest: 19999, host: 9001
     c.vm.hostname = 'smtp-server'
     c.vm.network :private_network, ip:'192.168.30.11'
   end
@@ -66,6 +68,7 @@ apt -y install apache2-utils
   config.vm.define 'smtp-rcpt', autostart: autostart_smtp do |c|
     c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
     c.vm.provision 'shell', path: 'provision/smtp.sh'
+    c.vm.provision 'shell', path: 'provision/netdata.sh'
     c.vm.hostname = 'smtp-rcpt'
     c.vm.network :private_network, ip:'192.168.30.13'
   end
