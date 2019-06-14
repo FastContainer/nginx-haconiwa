@@ -47,14 +47,14 @@ Haconiwa.define do |c|
   c.capabilities.allow 'cap_kill'
   c.capabilities.allow 'cap_audit_write'
 
-  c.add_async_hook(msec: 3 * 60 * 1000, interval_msec: 15 * 1000) do |base|
-    if container_working?(ip, 25, veth)
-      Haconiwa::Logger.info "shutdown canceled because container(#{ip}:#{port} on #{veth}) still seems working. wait next shutdown"
-      next
-    end
-    Haconiwa::Logger.info "process killed: #{base.pid}, container not working on #{ip}:#{port}"
-    ::Process.kill :TERM, base.pid
-  end
+  #c.add_async_hook(msec: 3 * 60 * 1000, interval_msec: 15 * 1000) do |base|
+  #  if container_working?(ip, 25, veth)
+  #    Haconiwa::Logger.info "shutdown canceled because container(#{ip}:#{port} on #{veth}) still seems working. wait next shutdown"
+  #    next
+  #  end
+  #  Haconiwa::Logger.info "process killed: #{base.pid}, container not working on #{ip}:#{port}"
+  #  ::Process.kill :TERM, base.pid
+  #end
 
   c.add_general_hook :before_start_wait do |base|
     Haconiwa::Logger.info "haconiwa hook: setup -- #{base.name}"
