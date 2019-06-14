@@ -61,6 +61,7 @@ apt -y install apache2-utils
     c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
     c.vm.provision 'file', source: './provision/sender.sh', destination: '/tmp/sender.sh'
     c.vm.provision 'shell', path: 'provision/smtp.sh'
+    c.vm.provision 'shell', path: 'provision/client.sh'
     c.vm.hostname = 'smtp-client'
     c.vm.network :private_network, ip:'192.168.30.12'
   end
