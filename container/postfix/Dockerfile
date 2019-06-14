@@ -9,5 +9,8 @@ RUN apt update -yy && \
 ADD entry.sh /entry.sh
 RUN chmod +x /entry.sh
 
-EXPOSE 25
+RUN wget https://my-netdata.io/kickstart.sh &&
+    /bin/bash ./kickstart.sh all --non-interactive
+
+EXPOSE 25 19999
 CMD ["/entry.sh"]

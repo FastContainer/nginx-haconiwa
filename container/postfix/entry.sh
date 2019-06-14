@@ -18,6 +18,7 @@ fi
 service rsyslog start
 service postfix start
 sleep 10
+/usr/sbin/netdata -D
 
 # https://stackoverflow.com/questions/9256644/identifying-received-signal-name-in-bash/9256709#9256709
 trap_with_arg() {
