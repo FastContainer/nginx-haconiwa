@@ -18,6 +18,12 @@ module Container
       dispatch(haco, cip, 80, [], req.hostname)
     end
 
+    def forward_to_netdata
+      containers = conf['containers']['http']
+      req = Nginx::Request.new
+      "#{containers[req.hostname]['ip']}:19999"
+    end
+
     def dispatch_ssh
       containers = conf['containers']['ssh']
       haco = containers['haco']
@@ -36,13 +42,6 @@ module Container
       c = Nginx::Stream::Connection.new 'dynamic_server'
       c.upstream_server = "#{cip}:#{cport}"
       dispatch(haco, cip, cport)
-    end
-
-    def dispatch_smtp_no_auth_web(name)
-      containers = conf['containers']['smtp']
-      haco = containers[name]['haco']
-      cip = containers[name]['ip']
-      "#{cip}:19999"
     end
 
     def dispatch_smtp_after_smtp_auth
@@ -250,7 +249,7 @@ lambda do
          when 58026 then Container.dispatch_smtp_no_auth('noauth2')
          when 58027 then Container.dispatch_smtp_no_auth('noauth3')
          when 58028 then Container.dispatch_smtp_no_auth('noauth4')
-         when 19999 then Container.dispatch_smtp_no_auth_web('noauth2')
+         when 19998 then Container.forward_to_netdata
          when 80 then Container.dispatch_http
          when 8022 then Container.dispatch_ssh
          end
