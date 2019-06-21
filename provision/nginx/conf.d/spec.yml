@@ -12,6 +12,14 @@ containers:
     wordpress.test:
       haco: 'wordpress'
       ip: '10.0.5.13'
+    mail1.test:
+      ip: '10.0.5.32'
+    mail2.test:
+      ip: '10.0.5.33'
+    mail3.test:
+      ip: '10.0.5.34'
+    mail4.test:
+      ip: '10.0.5.35'
   ssh:
     haco: 'ssh'
     ip: '10.0.5.20'
