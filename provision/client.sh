@@ -5,7 +5,7 @@ export GOPATH=/go
 
 apt-get update
 apt-get install -y --no-install-recommends g++ gcc libc6-dev make pkg-config
-wget -O go.tgz "https://golang.org/dl/go${GOLANG_VERSION}.linux-arm64.tar.gz"
+wget -O go.tgz "https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz"
 tar -C /usr/local -xzf go.tgz
 rm go.tgz
 
