@@ -51,7 +51,7 @@ Haconiwa.define do |c|
   c.capabilities.allow 'cap_kill'
   c.capabilities.allow 'cap_audit_write'
 
-  c.add_async_hook(interval_msec: 3 * 60 * 1000) do |base|
+  c.add_async_hook(min: 3, interval_msec: 3 * 60 * 1000) do |base|
     if container_working?(ip, 25, veth)
       Haconiwa::Logger.info "shutdown canceled because container(#{ip}:#{port} on #{veth}) still seems working. wait next shutdown"
       next
