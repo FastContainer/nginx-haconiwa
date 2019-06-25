@@ -56,6 +56,10 @@ Haconiwa.define do |c|
       Haconiwa::Logger.info "shutdown canceled because container(#{ip}:#{port} on #{veth}) still seems working. wait next shutdown"
       next
     end
+    if mailq_exists?
+      Haconiwa::Logger.info "shutdown canceled because container(#{ip}:#{port} on #{veth}) still have mail queue. wait next shutdown"
+      next
+    end
     Haconiwa::Logger.info "process killed: #{base.pid}, container not working on #{ip}:#{port}"
     ::Process.kill :TERM, base.pid
   end
