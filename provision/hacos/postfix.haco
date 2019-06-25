@@ -6,6 +6,10 @@ Haconiwa.define do |c|
     system "netstat -nt | grep -v TIME_WAIT | awk '{print $5}' | grep #{ip}:#{port}"
   end
 
+  def Kernel.mailq_exists?
+    system "test `mailq | grep -c \"^[A-F0-9]\"` != 0"
+  end
+
   id = ENV['ID']
   ip = ENV['IP']
   port = ENV['PORT']
