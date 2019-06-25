@@ -61,7 +61,7 @@ Haconiwa.define do |c|
       next
     end
     Haconiwa::Logger.info "process killed: #{base.pid}, container not working on #{ip}:#{port}"
-    ::Process.kill :TERM, base.pid
+    ::Process.kill :KILL, base.pid
   end
 
   c.add_general_hook :before_start_wait do |base|
