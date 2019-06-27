@@ -244,10 +244,10 @@ end
 lambda do
   return case nginx_local_port
          when 58080 then Container.dispatch_smtp_after_smtp_auth
-         when 58025 then Container.dispatch_smtp_no_auth('noauth1')
-         when 58026 then Container.dispatch_smtp_no_auth('noauth2')
-         when 58027 then Container.dispatch_smtp_no_auth('noauth3')
-         when 58028 then Container.dispatch_smtp_no_auth('noauth4')
+         when 58025 then Container.dispatch_smtp_no_auth('mail1.test')
+         when 58026 then Container.dispatch_smtp_no_auth('mail2.test')
+         when 58027 then Container.dispatch_smtp_no_auth('mail3.test')
+         when 58028 then Container.dispatch_smtp_no_auth('mail4.test')
          when 19998 then Container.forward_to_netdata
          when 80 then Container.dispatch_http
          when 8022 then Container.dispatch_ssh
