@@ -17,21 +17,6 @@ fi
 
 service rsyslog start
 service postfix start
-sleep 10
 /usr/sbin/netdata -D
-
-# https://stackoverflow.com/questions/9256644/identifying-received-signal-name-in-bash/9256709#9256709
-trap_with_arg() {
-  func="$1" ; shift
-  for sig ; do
-    trap "$func $sig" "$sig"
-  done
-}
-
-func_trap() {
-  echo Trapped: $1
-}
-
-trap_with_arg func_trap INT TERM EXIT
-
+sleep 1
 tail -f /var/log/mail.log
