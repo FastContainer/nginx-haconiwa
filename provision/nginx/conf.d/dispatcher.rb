@@ -41,7 +41,7 @@ module Container
       cport = 25
       c = Nginx::Stream::Connection.new 'dynamic_server'
       c.upstream_server = "#{cip}:#{cport}"
-      dispatch(haco, cip, cport)
+      dispatch(haco, cip, cport, ['DOMAIN' => name])
     end
 
     def dispatch_smtp_after_smtp_auth
@@ -117,8 +117,7 @@ module Container
       @haco = haco
 
       @root = '/var/lib/haconiwa'
-      @id = "#{@haco}-#{@ip.gsub('.', '-')}-#{Time.now.to_i}"
-      # @id = "#{@haco}-#{@ip.gsub('.', '-')}-1540895210"
+      @id = "#{@haco}-#{@ip.gsub('.', '-')}"
       @environment = ["IP=#{@ip}", "PORT=#{@port}", "ID=#{@id}", "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"]
       @environment.concat(env) if env.length > 0
       @hostname = hostname
