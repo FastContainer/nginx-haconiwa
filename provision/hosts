@@ -1,5 +1,5 @@
 192.168.30.10 containers mail1.test mail2.test mail3.test mail4.test
-192.168.30.11 smtp-server
+192.168.30.11 smtp-server monolithic
 192.168.30.12 smtp-client
 192.168.30.13 smtp-rcpt
 192.168.30.14 smtp-tarpit
