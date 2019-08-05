@@ -12,3 +12,9 @@ rm go.tgz
 mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 mkdir -p "$GOPATH/src/github.com/FastContainer"
 git clone https://github.com/FastContainer/playback.git "$GOPATH/src/github.com/FastContainer/playback"
+
+ln -s /usr/local/go/bin/go /usr/local/bin/go
+cd /go/src/github.com/FastContainer/playback
+export GO111MODULE=on
+make
+mv ./playback /usr/local/bin/playback
