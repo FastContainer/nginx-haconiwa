@@ -12,14 +12,6 @@ containers:
     wordpress.test:
       haco: 'wordpress'
       ip: '10.0.5.13'
-    mail1.test:
-      ip: '10.0.5.32'
-    mail2.test:
-      ip: '10.0.5.33'
-    mail3.test:
-      ip: '10.0.5.34'
-    mail4.test:
-      ip: '10.0.5.35'
   ssh:
     haco: 'ssh'
     ip: '10.0.5.20'
@@ -30,15 +22,15 @@ containers:
     bar:
       haco: 'postfix'
       ip: '10.0.5.31'
-    mail1.test:
+    dimi-1.test:
       haco: 'postfix'
       ip: '10.0.5.32'
-    mail2.test:
+    dimi-2.test:
       haco: 'postfix'
       ip: '10.0.5.33'
-    mail3.test:
+    dimi-3.test:
       haco: 'postfix'
       ip: '10.0.5.34'
-    mail4.test:
+    dimi-4.test:
       haco: 'postfix'
       ip: '10.0.5.35'
