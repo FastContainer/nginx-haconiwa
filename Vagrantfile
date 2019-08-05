@@ -21,8 +21,6 @@ Vagrant.configure('2') do |config|
       p = "8#{port.rjust(3, '0')}"
       c.vm.network 'forwarded_port', guest: p, host: p
     end
-    c.vm.network 'forwarded_port', guest: 19999, host: 9000
-    c.vm.network 'forwarded_port', guest: 19998, host: 9001
     c.vm.synced_folder './provision', '/data'
     c.vm.provision 'shell', path: 'provision/containers.sh'
     c.vm.hostname = 'containers'
@@ -52,8 +50,6 @@ apt -y install apache2-utils
   config.vm.define 'smtp-server', autostart: autostart_smtp do |c|
     c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
     c.vm.provision 'shell', path: 'provision/smtp.sh'
-    c.vm.provision 'shell', path: 'provision/netdata.sh'
-    c.vm.network 'forwarded_port', guest: 19999, host: 9002
     c.vm.hostname = 'smtp-server'
     c.vm.network :private_network, ip:'192.168.30.11'
   end
@@ -70,7 +66,6 @@ apt -y install apache2-utils
   config.vm.define 'smtp-rcpt', autostart: autostart_smtp do |c|
     c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
     c.vm.provision 'shell', path: 'provision/smtp.sh'
-    c.vm.provision 'shell', path: 'provision/netdata.sh'
     c.vm.hostname = 'smtp-rcpt'
     c.vm.network :private_network, ip:'192.168.30.13'
   end

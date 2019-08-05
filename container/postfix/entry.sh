@@ -17,6 +17,5 @@ fi
 
 service rsyslog start
 service postfix start
-/usr/sbin/netdata -D
 sleep 1
 tail -f /var/log/mail.log
