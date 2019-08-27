@@ -15,6 +15,13 @@ type haconiwa >/dev/null 2>&1 || \
   curl -s https://packagecloud.io/install/repositories/udzura/haconiwa/script.deb.sh | bash && \
   apt install -y haconiwa #'haconiwa=0.9.4-1'
 
+apt-get install -y criu
+haconiwa_ver=0.10.4
+wget https://github.com/haconiwa/haconiwa/releases/download/v${haconiwa_ver}/haconiwa-v${haconiwa_ver}.x86_64-pc-linux-gnu.tgz
+tar xzf haconiwa-v${haconiwa_ver}.x86_64-pc-linux-gnu.tgz
+rm -rf /usr/bin/haco*
+install hacorb hacoirb haconiwa /usr/bin
+
 # deploy hacofile
 test -d /var/log/haconiwa || mkdir -p /var/log/haconiwa
 test -d /var/lib/haconiwa/rootfs || mkdir -p /var/lib/haconiwa/rootfs
