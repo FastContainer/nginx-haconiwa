@@ -6,6 +6,7 @@ Haconiwa.define do |c|
   port = ENV['PORT']
 
   c.name = id
+  c.cgroup_name = "#{id}-#{Time.now.to_i}"
   c.workdir = '/root'
 
   root = Pathname.new("/var/lib/haconiwa/rootfs/#{id}")

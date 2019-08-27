@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ "$maildomain" == "" ]; then
+  maildomain="example.test"
+fi
+
 postconf -e myhostname="$maildomain"
 postconf -F '*/*/chroot = n'
 
@@ -15,22 +19,15 @@ if [ "$bench" == "true" ]; then
   smtp-sink -R /root -u root -d sink/%Y%m%d%H/%M. 127.0.0.1:8025 5 &
 fi
 
+if [ ! -f /var/log/mail.log ]; then
+  touch /var/log/mail.log
+fi
+
 service rsyslog start
 service postfix start
-sleep 10
 
-# https://stackoverflow.com/questions/9256644/identifying-received-signal-name-in-bash/9256709#9256709
-trap_with_arg() {
-  func="$1" ; shift
-  for sig ; do
-    trap "$func $sig" "$sig"
-  done
-}
-
-func_trap() {
-  echo Trapped: $1
-}
-
-trap_with_arg func_trap INT TERM EXIT
-
-tail -f /var/log/mail.log
+trap "echo got sig-term to exit; exit 0" TERM
+while :
+do
+  sleep 1
+done

@@ -28,24 +28,14 @@ module Container
       dispatch(haco, cip, cport)
     end
 
-    def dispatch_smtp_no_auth1
+    def dispatch_smtp_no_auth(name)
       containers = conf['containers']['smtp']
-      haco = containers['noauth1']['haco']
-      cip = containers['noauth1']['ip']
+      haco = containers[name]['haco']
+      cip = containers[name]['ip']
       cport = 25
       c = Nginx::Stream::Connection.new 'dynamic_server'
       c.upstream_server = "#{cip}:#{cport}"
-      dispatch(haco, cip, cport)
-    end
-
-    def dispatch_smtp_no_auth2
-      containers = conf['containers']['smtp']
-      haco = containers['noauth2']['haco']
-      cip = containers['noauth2']['ip']
-      cport = 25
-      c = Nginx::Stream::Connection.new 'dynamic_server'
-      c.upstream_server = "#{cip}:#{cport}"
-      dispatch(haco, cip, cport)
+      dispatch(haco, cip, cport, ['DOMAIN' => name])
     end
 
     def dispatch_smtp_after_smtp_auth
@@ -121,8 +111,7 @@ module Container
       @haco = haco
 
       @root = '/var/lib/haconiwa'
-      @id = "#{@haco}-#{@ip.gsub('.', '-')}-#{Time.now.to_i}"
-      # @id = "#{@haco}-#{@ip.gsub('.', '-')}-1540895210"
+      @id = "#{@haco}-#{@ip.gsub('.', '-')}"
       @environment = ["IP=#{@ip}", "PORT=#{@port}", "ID=#{@id}", "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"]
       @environment.concat(env) if env.length > 0
       @hostname = hostname
@@ -249,8 +238,10 @@ end
 lambda do
   return case nginx_local_port
          when 58080 then Container.dispatch_smtp_after_smtp_auth
-         when 58025 then Container.dispatch_smtp_no_auth1
-         when 58026 then Container.dispatch_smtp_no_auth2
+         when 58025 then Container.dispatch_smtp_no_auth('dimi-1.test')
+         when 58026 then Container.dispatch_smtp_no_auth('dimi-2.test')
+         when 58027 then Container.dispatch_smtp_no_auth('dimi-3.test')
+         when 58028 then Container.dispatch_smtp_no_auth('dimi-4.test')
          when 80 then Container.dispatch_http
          when 8022 then Container.dispatch_ssh
          end

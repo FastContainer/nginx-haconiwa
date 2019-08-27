@@ -6,13 +6,19 @@ Haconiwa.define do |c|
     system "netstat -nt | grep -v TIME_WAIT | awk '{print $5}' | grep #{ip}:#{port}"
   end
 
+  def Kernel.mailq_exists?
+    system "test `mailq | grep -c \"^[A-F0-9]\"` != 0"
+  end
+
   id = ENV['ID']
+  domain =  ENV['DOMAIN'] || id
   ip = ENV['IP']
   port = ENV['PORT']
   bench = ENV['BENCH'] || 'false'
 
   c.name = id
-  c.environ = { 'maildomain' => id, 'bench' => bench }
+  c.cgroup_name = "#{id}-#{Time.now.to_i}"
+  c.environ = { 'maildomain' => domain, 'bench' => bench }
 
   root = Pathname.new("/var/lib/haconiwa/rootfs/#{id}")
   c.init_command = ['/entry.sh']
@@ -47,9 +53,13 @@ Haconiwa.define do |c|
   c.capabilities.allow 'cap_kill'
   c.capabilities.allow 'cap_audit_write'
 
-  c.add_async_hook(msec: 3 * 60 * 1000, interval_msec: 15 * 1000) do |base|
+  c.add_async_hook(min: 3, interval_msec: 3 * 60 * 1000) do |base|
     if container_working?(ip, 25, veth)
       Haconiwa::Logger.info "shutdown canceled because container(#{ip}:#{port} on #{veth}) still seems working. wait next shutdown"
+      next
+    end
+    if mailq_exists?
+      Haconiwa::Logger.info "shutdown canceled because container(#{ip}:#{port} on #{veth}) still have mail queue. wait next shutdown"
       next
     end
     Haconiwa::Logger.info "process killed: #{base.pid}, container not working on #{ip}:#{port}"

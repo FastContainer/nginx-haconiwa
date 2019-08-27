@@ -21,7 +21,6 @@ Vagrant.configure('2') do |config|
       p = "8#{port.rjust(3, '0')}"
       c.vm.network 'forwarded_port', guest: p, host: p
     end
-    c.vm.network 'forwarded_port', guest: 19999, host: 9000
     c.vm.synced_folder './provision', '/data'
     c.vm.provision 'shell', path: 'provision/containers.sh'
     c.vm.hostname = 'containers'
@@ -59,6 +58,7 @@ apt -y install apache2-utils
     c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
     c.vm.provision 'file', source: './provision/sender.sh', destination: '/tmp/sender.sh'
     c.vm.provision 'shell', path: 'provision/smtp.sh'
+    c.vm.provision 'shell', path: 'provision/client.sh'
     c.vm.hostname = 'smtp-client'
     c.vm.network :private_network, ip:'192.168.30.12'
   end
