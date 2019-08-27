@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ "$maildomain" == "" ]; then
+  maildomain="example.test"
+fi
+
 postconf -e myhostname="$maildomain"
 postconf -F '*/*/chroot = n'
 
@@ -15,7 +19,15 @@ if [ "$bench" == "true" ]; then
   smtp-sink -R /root -u root -d sink/%Y%m%d%H/%M. 127.0.0.1:8025 5 &
 fi
 
+if [ ! -f /var/log/mail.log ]; then
+  touch /var/log/mail.log
+fi
+
 service rsyslog start
 service postfix start
-sleep 1
-tail -f /var/log/mail.log
+
+trap "echo got sig-term to exit; exit 0" TERM
+while :
+do
+  sleep 1
+done
