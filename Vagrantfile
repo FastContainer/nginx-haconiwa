@@ -8,7 +8,11 @@ Vagrant.configure('2') do |config|
     vb.cpus = 1
   end
 
-  config.vm.define 'containers', primary: true do |c|
+  autostart_bench = !!ENV['BENCH']
+  autostart_smtp = !!ENV['SMTP']
+  autostart_resource = !!ENV['RESOURCE']
+
+  config.vm.define 'containers', autostart: !autostart_resource, primary: true do |c|
     c.disksize.size = '50GB'
     c.vm.provider 'virtualbox' do |vb|
       vb.memory = 512 * 6
@@ -28,8 +32,6 @@ Vagrant.configure('2') do |config|
     c.vm.network :private_network, ip:'192.168.30.99'
   end
 
-  autostart_bench = !!ENV['BENCH']
-
   config.vm.define :bench, autostart: autostart_bench do |c|
     c.disksize.size = '50GB'
     c.vm.provider 'virtualbox' do |vb|
@@ -45,8 +47,7 @@ apt -y install apache2-utils
     c.vm.network 'private_network', ip: '192.168.199.20'
   end
 
-  autostart_smtp = !!ENV['SMTP']
-
+  # Comparison of the effect of the number of simultaneous connections
   config.vm.define 'smtp-server', autostart: autostart_smtp do |c|
     c.vm.provision 'file', source: './provision/hosts', destination: '/tmp/hosts'
     c.vm.provision 'shell', path: 'provision/smtp.sh'
@@ -76,5 +77,25 @@ apt -y install apache2-utils
     c.vm.provision 'shell', path: 'provision/smtp-tarpit.sh'
     c.vm.hostname = 'smtp-tarpit'
     c.vm.network :private_network, ip:'192.168.30.14'
+  end
+
+  # Resource usage comparison
+  config.vm.define 'postfix', autostart: autostart_resource do |c|
+    c.vm.synced_folder './provision', '/data'
+    c.vm.provision 'shell', path: 'provision/postfix.sh'
+    c.vm.hostname = 'postfix'
+    c.vm.network :private_network, ip:'192.168.30.15'
+  end
+
+  config.vm.define 'docker', autostart: autostart_resource do |c|
+    c.vm.provision 'shell', path: 'provision/docker.sh'
+    c.vm.hostname = 'docker'
+    c.vm.network :private_network, ip:'192.168.30.16'
+  end
+
+  config.vm.define 'fastcon', autostart: autostart_resource do |c|
+    c.vm.provision 'shell', path: 'provision/fastcon.sh'
+    c.vm.hostname = 'fastcon'
+    c.vm.network :private_network, ip:'192.168.30.17'
   end
 end
