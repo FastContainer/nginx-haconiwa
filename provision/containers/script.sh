@@ -33,7 +33,7 @@ brctl show haconiwa0 2>&1 | grep -i "no such device" && \
   haconiwa init --bridge --bridge-ip=10.0.5.1/24
 test $(/sbin/sysctl net.ipv4.ip_forward | awk '{print $3}') -eq 0 && \
   /sbin/sysctl -w net.ipv4.ip_forward=1
-/sbin/iptables-restore < /data/iptables.rules
+/sbin/iptables-restore < /data/containers/iptables.rules
 
 # install nginx
 cp /data/dist/nginx-${nginx_ver}.tar.gz /usr/local/src/nginx.tar.gz
@@ -44,11 +44,11 @@ test -d /var/log/nginx || ln -s /usr/local/nginx-${nginx_ver}/logs /var/log/ngin
 id nginx >/dev/null 2>&1 || useradd -d /var/www -s /bin/false nginx
 
 test -f /etc/systemd/system/nginx.service || \
-  cp /data/nginx/nginx.service /etc/systemd/system/nginx.service && systemctl daemon-reload
+  cp /data/containers/nginx/nginx.service /etc/systemd/system/nginx.service && systemctl daemon-reload
 rm -rf /etc/nginx/nginx.conf && \
-  ln -s /data/nginx/nginx.conf /etc/nginx/nginx.conf
+  ln -s /data/containers/nginx/nginx.conf /etc/nginx/nginx.conf
 rm -rf /etc/nginx/conf.d && \
-  ln -s /data/nginx/conf.d /etc/nginx/conf.d
+  ln -s /data/containers/nginx/conf.d /etc/nginx/conf.d
 
 test -f /etc/nginx/tls.crt || \
   openssl req -x509 -days 365 -newkey rsa:2048 -nodes \
@@ -58,4 +58,4 @@ test -f /etc/nginx/tls.crt || \
 systemctl enable nginx && systemctl start nginx
 
 # add script
-rm -rf /usr/local/bin/cleanip && ln -s /data/cleanip /usr/local/bin/cleanip
+rm -rf /usr/local/bin/cleanip && ln -s /data/containers/cleanip /usr/local/bin/cleanip

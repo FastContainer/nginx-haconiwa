@@ -1,5 +1,5 @@
-192.168.30.10 containers dimi-1.test dimi-2.test dimi-3.test dimi-4.test
-192.168.30.11 smtp-server mono-1.test mono-2.test mono-3.test mono-4.test
-192.168.30.12 smtp-client
-192.168.30.13 smtp-rcpt
-192.168.30.14 smtp-tarpit
+192.168.30.10 containers container-1.test container-2.test container-3.test container-4.test
+192.168.30.11 monolith mono-1.test mono-2.test mono-3.test mono-4.test
+192.168.30.12 sender
+192.168.30.13 recipient
+192.168.30.14 mxtarpit
