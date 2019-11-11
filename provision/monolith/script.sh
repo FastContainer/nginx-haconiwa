@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 apt upgrade -y
-apt install -y bridge-utils openssl curl
+apt install -y bridge-utils openssl curl dstat
 locale-gen ja_JP.UTF-8
 
 # install nginx
@@ -19,3 +19,13 @@ rm -rf /etc/nginx/nginx.conf && \
   ln -s /data/monolith/nginx.conf /etc/nginx/nginx.conf
 
 systemctl enable nginx && systemctl start nginx
+
+postconf -e default_process_limit=10000
+postconf -e smtpd_client_connection_count_limit=10000
+
+systemctl restart postfix
+
+test -f /etc/systemd/system/dstat.service || \
+  cp /data/monolith/dstat.service /etc/systemd/system/dstat.service && systemctl daemon-reload
+
+systemctl enable dstat && systemctl start dstat

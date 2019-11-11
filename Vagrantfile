@@ -4,8 +4,8 @@
 Vagrant.configure('2') do |config|
   config.vm.box = 'ubuntu/bionic64'
   config.vm.provider 'virtualbox' do |vb|
-    vb.memory = 512
-    vb.cpus = 1
+    vb.memory = 512 * 4
+    vb.cpus = 1 * 2
   end
 
   autostart_bench = !!ENV['BENCH']
