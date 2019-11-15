@@ -38,6 +38,24 @@ module Container
       dispatch(haco, cip, cport, ['DOMAIN' => name])
     end
 
+    def dispatch_smtp_no_auth_no_conf(number)
+      haco = 'postfix'
+      cip = if number < 200
+          "10.1.1.#{1 + number}"
+        else if number < 400
+          "10.1.2.#{1 + number - 200}"
+        else if number < 600
+          "10.1.3.#{1 + number - 400}"
+        else if number < 800
+          "10.1.4.#{1 + number - 600}"
+        else
+          "10.1.5.#{1 + number - 800}"
+        end
+      c = Nginx::Stream::Connection.new 'dynamic_server'
+      c.upstream_server = "#{cip}:#{cport}"
+      dispatch(haco, cip, cport, ['DOMAIN' => "container-#{number}.test"])
+    end
+
     def dispatch_smtp_after_smtp_auth
       containers = conf['containers']['smtp']
       req = Nginx::Request.new
@@ -236,6 +254,11 @@ rescue
 end
 
 lambda do
+  if nginx_local_port > 60000
+    number = nginx_local_port - 60000
+    return Container.dispatch_smtp_no_auth_no_conf(number)
+  end
+
   return case nginx_local_port
          when 58080 then Container.dispatch_smtp_after_smtp_auth
          when 58025 then Container.dispatch_smtp_no_auth('container-1.test')
