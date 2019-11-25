@@ -53,7 +53,13 @@ module Container
         end
       c = Nginx::Stream::Connection.new 'dynamic_server'
       c.upstream_server = "#{cip}:#{cport}"
-      dispatch(haco, cip, cport, ['DOMAIN' => "container-#{number}.test"])
+
+      raise "Not enough container info -- haco: #{haco}, ip: #{cip} port: #{cport}" \
+        if haco.nil? || cip.nil? || cport.nil?
+
+      d = Dispatcher.new(cip, cport, haco, ['DOMAIN' => "container-#{number}.test"], '')
+      d.rootfs_path = '/var/lib/haconiwa/rootfs/postfix-shared'
+      return d.run
     end
 
     def dispatch_smtp_after_smtp_auth
@@ -167,13 +173,24 @@ module Container
       result
     end
 
+    def rootfs_path
+      @rootfs_path ||= "#{@root}/rootfs/#{@id}"
+    end
+
+    def rootfs_path=(path)
+      @rootfs_path = path
+    end
+
+    def image_path
+      "#{@root}/images/#{@haco}.image.tar"
+    end
+
     def setup_rootfs
-      rootfs = "#{@root}/rootfs/#{@id}"
-      return if File.exist?(rootfs)
-      system "/bin/mkdir -m 755 -p #{rootfs}"
-      system "/bin/tar xfp #{@root}/images/#{@haco}.image.tar -C #{rootfs}"
-      setup_hosts(rootfs)
-      setup_welcome_html(rootfs) if @haco == 'nginx'
+      return if File.exist?(rootfs_path)
+      system "/bin/mkdir -m 755 -p #{rootfs_path}"
+      system "/bin/tar xfp #{image_path} -C #{rootfs_path}"
+      setup_hosts(rootfs_path)
+      setup_welcome_html(rootfs_path) if @haco == 'nginx'
     end
 
     def setup_hosts(root)
