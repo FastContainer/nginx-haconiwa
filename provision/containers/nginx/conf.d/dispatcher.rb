@@ -42,15 +42,15 @@ module Container
       haco = 'postfix'
       cport = 25
       cip = if number < 200
-          "10.1.1.#{1 + number}"
-        else if number < 400
-          "10.1.2.#{1 + number - 200}"
-        else if number < 600
-          "10.1.3.#{1 + number - 400}"
-        else if number < 800
-          "10.1.4.#{1 + number - 600}"
+          "10.1.1.#{number}"
+        elsif number < 400
+          "10.1.2.#{number - 200}"
+        elsif number < 600
+          "10.1.3.#{number - 400}"
+        elsif number < 800
+          "10.1.4.#{number - 600}"
         else
-          "10.1.5.#{1 + number - 800}"
+          "10.1.5.#{number - 800}"
         end
       c = Nginx::Stream::Connection.new 'dynamic_server'
       c.upstream_server = "#{cip}:#{cport}"
