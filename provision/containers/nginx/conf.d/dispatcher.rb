@@ -35,7 +35,7 @@ module Container
       cport = 25
       c = Nginx::Stream::Connection.new 'dynamic_server'
       c.upstream_server = "#{cip}:#{cport}"
-      dispatch(haco, cip, cport, ['DOMAIN' => name])
+      dispatch(haco, cip, cport, ["DOMAIN=#{name}"])
     end
 
     def dispatch_smtp_no_auth_no_conf(number)
