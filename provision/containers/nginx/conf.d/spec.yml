@@ -2,35 +2,35 @@ containers:
   http:
     default:
       haco: 'nginx'
-      ip: '10.0.5.10'
+      ip: '10.1.100.10'
     foo.test:
       haco: 'nginx'
-      ip: '10.0.5.11'
+      ip: '10.1.100.11'
     bar.test:
       haco: 'nginx'
-      ip: '10.0.5.12'
+      ip: '10.1.100.12'
     wordpress.test:
       haco: 'wordpress'
-      ip: '10.0.5.13'
+      ip: '10.1.100.13'
   ssh:
     haco: 'ssh'
-    ip: '10.0.5.20'
+    ip: '10.1.100.20'
   smtp:
     foo:
       haco: 'postfix'
-      ip: '10.0.5.30'
+      ip: '10.1.100.30'
     bar:
       haco: 'postfix'
-      ip: '10.0.5.31'
+      ip: '10.1.100.31'
     container-1.test:
       haco: 'postfix'
-      ip: '10.0.5.32'
+      ip: '10.1.100.32'
     container-2.test:
       haco: 'postfix'
-      ip: '10.0.5.33'
+      ip: '10.1.100.33'
     container-3.test:
       haco: 'postfix'
-      ip: '10.0.5.34'
+      ip: '10.1.100.34'
     container-4.test:
       haco: 'postfix'
-      ip: '10.0.5.35'
+      ip: '10.1.100.35'

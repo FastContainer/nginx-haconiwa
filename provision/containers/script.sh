@@ -36,7 +36,7 @@ test -z `ls ${postfix_rootfs_path}` || tar xfp ${postfix_image_path} -C ${postfi
 
 # setup network
 brctl show haconiwa0 2>&1 | grep -i "no such device" && \
-  haconiwa init --bridge --bridge-ip=10.0.5.1/24
+  haconiwa init --bridge --bridge-ip=10.1.0.1/16
 test $(/sbin/sysctl net.ipv4.ip_forward | awk '{print $3}') -eq 0 && \
   /sbin/sysctl -w net.ipv4.ip_forward=1
 /sbin/iptables-restore < /data/containers/iptables.rules
