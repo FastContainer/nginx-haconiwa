@@ -40,6 +40,7 @@ module Container
 
     def dispatch_smtp_no_auth_no_conf(number)
       haco = 'postfix'
+      cport = 25
       cip = if number < 200
           "10.1.1.#{1 + number}"
         else if number < 400
