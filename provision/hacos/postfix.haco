@@ -10,6 +10,7 @@ Haconiwa.define do |c|
     system "test `mailq | grep -c \"^[A-F0-9]\"` != 0"
   end
 
+  shared = !!ENV['SHARED']
   id = ENV['ID']
   domain =  ENV['DOMAIN'] || id
   ip = ENV['IP']
@@ -20,7 +21,7 @@ Haconiwa.define do |c|
   c.cgroup_name = "#{id}-#{Time.now.to_i}"
   c.environ = { 'maildomain' => domain, 'bench' => bench }
 
-  root = Pathname.new("/var/lib/haconiwa/rootfs/#{id}")
+  root = Pathname.new("/var/lib/haconiwa/rootfs/#{shared ? 'shared/postfix' : id}")
   c.init_command = ['/entry.sh']
   c.command.set_stdout(file: "/var/log/haconiwa.out")
   c.command.set_stderr(file: "/var/log/haconiwa.err")

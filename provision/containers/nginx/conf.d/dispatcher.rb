@@ -58,8 +58,9 @@ module Container
       raise "Not enough container info -- haco: #{haco}, ip: #{cip} port: #{cport}" \
         if haco.nil? || cip.nil? || cport.nil?
 
-      d = Dispatcher.new(cip, cport, haco, ['DOMAIN' => "container-#{number}.test"], '')
-      d.rootfs_path = '/var/lib/haconiwa/rootfs/postfix-shared'
+      env = ["DOMAIN=container-#{number}.test", "SHARED=true"]
+      d = Dispatcher.new(cip, cport, haco, env, '')
+      d.rootfs_path = '/var/lib/haconiwa/rootfs/shared/postfix'
       return d.run
     end
 
