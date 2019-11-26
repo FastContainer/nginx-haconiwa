@@ -272,10 +272,8 @@ rescue
 end
 
 lambda do
-  if nginx_local_port > 60000
-    number = nginx_local_port - 60000
-    return Container.dispatch_smtp_no_auth_no_conf(number)
-  end
+  return Container.dispatch_smtp_no_auth_no_conf(nginx_local_port - 60000) \
+    if nginx_local_port > 60000
 
   return case nginx_local_port
          when 58080 then Container.dispatch_smtp_after_smtp_auth
