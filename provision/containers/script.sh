@@ -67,6 +67,7 @@ systemctl enable nginx && systemctl start nginx
 rm -rf /usr/local/bin/cleanip && ln -s /data/containers/cleanip /usr/local/bin/cleanip
 
 # dstat daemon
+apt-get install -y dstat
 test -f /etc/systemd/system/dstat.service || \
   cp /data/containers/dstat.service /etc/systemd/system/dstat.service && systemctl daemon-reload
 
