@@ -32,7 +32,7 @@ rm -rf /var/lib/haconiwa/images && ln -s /data/dist /var/lib/haconiwa/images
 postfix_rootfs_path=/var/lib/haconiwa/rootfs/shared/postfix
 postfix_image_path=/var/lib/haconiwa/images/postfix.image.tar
 test -d ${postfix_rootfs_path} || mkdir -m 755 -p ${postfix_rootfs_path}
-test -z `ls ${postfix_rootfs_path}` || tar xfp ${postfix_image_path} -C ${postfix_rootfs_path}
+test -n "`ls ${postfix_rootfs_path}`" || tar xfp ${postfix_image_path} -C ${postfix_rootfs_path}
 
 # setup network
 brctl show haconiwa0 2>&1 | grep -i "no such device" && \
