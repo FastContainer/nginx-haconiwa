@@ -260,11 +260,10 @@ module Container
     end
 
     def listen?
-      Container.debug("FastRemoteCheck start")
       if ret = ::FastRemoteCheck.new('127.0.0.1', 0, @ip, @port, 3).connectable?
-        Container.debug("FastRemoteCheck ok")
+        Container.debug("listen!")
       else
-        Container.debug("FastRemoteCheck ng")
+        Container.debug("not listen")
       end
       ret
     rescue => e
