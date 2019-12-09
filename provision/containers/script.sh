@@ -35,16 +35,37 @@ postfix_workdir_path=/var/lib/haconiwa/images/postfix-workdir.tar.gz
 test -d ${postfix_rootfs_path} || mkdir -m 755 -p ${postfix_rootfs_path}
 test -n "`ls ${postfix_rootfs_path}`" || tar xfp ${postfix_image_path} -C ${postfix_rootfs_path}
 for i in `seq 2 201`; do
-  path1=/var/lib/haconiwa/rootfs/postfix-10-1-1-${i}
-  if [ ! -d $path1 ]; then
-    mkdir -m 755 -p ${path1} && tar xzfp ${postfix_workdir_path} -C ${path1}
+  path=/var/lib/haconiwa/rootfs/postfix-10-1-1-${i}
+  if [ ! -d $path ]; then
+    mkdir -m 755 -p ${path} && tar xzfp ${postfix_workdir_path} -C ${path}
   fi
   sleep 1
 done
 for i in `seq 2 201`; do
-  path1=/var/lib/haconiwa/rootfs/postfix-10-1-2-${i}
-  if [ ! -d $path1 ]; then
-    mkdir -m 755 -p ${path1} && tar xzfp ${postfix_workdir_path} -C ${path1}
+  path=/var/lib/haconiwa/rootfs/postfix-10-1-2-${i}
+  if [ ! -d $path ]; then
+    mkdir -m 755 -p ${path} && tar xzfp ${postfix_workdir_path} -C ${path}
+  fi
+  sleep 1
+done
+for i in `seq 2 201`; do
+  path=/var/lib/haconiwa/rootfs/postfix-10-1-3-${i}
+  if [ ! -d $path ]; then
+    mkdir -m 755 -p ${path} && tar xzfp ${postfix_workdir_path} -C ${path}
+  fi
+  sleep 1
+done
+for i in `seq 2 201`; do
+  path=/var/lib/haconiwa/rootfs/postfix-10-1-4-${i}
+  if [ ! -d $path ]; then
+    mkdir -m 755 -p ${path} && tar xzfp ${postfix_workdir_path} -C ${path}
+  fi
+  sleep 1
+done
+for i in `seq 2 201`; do
+  path=/var/lib/haconiwa/rootfs/postfix-10-1-5-${i}
+  if [ ! -d $path ]; then
+    mkdir -m 755 -p ${path} && tar xzfp ${postfix_workdir_path} -C ${path}
   fi
   sleep 1
 done
