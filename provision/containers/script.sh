@@ -102,6 +102,8 @@ rm -rf /usr/local/bin/cleanip && ln -s /data/containers/cleanip /usr/local/bin/c
 
 # dstat daemon
 apt-get install -y dstat
+test -f /usr/share/dstat/dstat_postfix_proc_count.py || \
+  cp /data/containers/dstat_postfix_proc_count.py /usr/share/dstat/dstat_postfix_proc_count.py
 test -f /etc/systemd/system/dstat.service || \
   cp /data/containers/dstat.service /etc/systemd/system/dstat.service && systemctl daemon-reload
 

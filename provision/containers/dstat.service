@@ -4,7 +4,7 @@ Requires=network-online.target
 After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/dstat -tcdnymp --output /data/dstat.container.csv
+ExecStart=/usr/bin/dstat -tcdnymp --postfix-proc-count --output /data/dstat.container.csv
 KillSignal=SIGINT
 Restart=on-failure
 
