@@ -109,3 +109,6 @@ test -f /etc/systemd/system/dstat.service || \
 
 systemctl enable dstat && systemctl start dstat
 systemctl enable nginx && systemctl start nginx
+
+sysctl -w net.core.somaxconn=4096
+ulimit -n 100000
