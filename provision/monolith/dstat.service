@@ -1,0 +1,12 @@
+[Unit]
+Description=Dstat
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/dstat -tcdnymp --output /data/dstat.monolith.csv
+KillSignal=SIGINT
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

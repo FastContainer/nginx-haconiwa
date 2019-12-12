@@ -35,7 +35,33 @@ module Container
       cport = 25
       c = Nginx::Stream::Connection.new 'dynamic_server'
       c.upstream_server = "#{cip}:#{cport}"
-      dispatch(haco, cip, cport, ['DOMAIN' => name])
+      dispatch(haco, cip, cport, ["DOMAIN=#{name}"])
+    end
+
+    def dispatch_smtp_no_auth_no_conf(number)
+      haco = 'postfix'
+      cport = 25
+      cip = if number < 200
+          "10.1.1.#{number}"
+        elsif number < 400
+          "10.1.2.#{number - 200}"
+        elsif number < 600
+          "10.1.3.#{number - 400}"
+        elsif number < 800
+          "10.1.4.#{number - 600}"
+        else
+          "10.1.5.#{number - 800}"
+        end
+      c = Nginx::Stream::Connection.new 'dynamic_server'
+      c.upstream_server = "#{cip}:#{cport}"
+
+      raise "Not enough container info -- haco: #{haco}, ip: #{cip} port: #{cport}" \
+        if haco.nil? || cip.nil? || cport.nil?
+
+      env = ["DOMAIN=container-#{number}.test", "SHARED=true"]
+      d = Dispatcher.new(cip, cport, haco, env, '')
+      d.rootfs_path = '/var/lib/haconiwa/rootfs/shared/postfix'
+      return d.run
     end
 
     def dispatch_smtp_after_smtp_auth
@@ -124,10 +150,19 @@ module Container
         return result
       end
 
+      if booting?
+        wait_for_listen("/var/lock/.#{@id}.hacolock")
+        return result
+      end
+
+      booting!
+
       Container.debug('Launching a container...')
       setup_rootfs
       start_haconiwa
       wait_for_listen("/var/lock/.#{@id}.hacolock")
+
+      not_booting!
 
       Container.debug("Return ip: #{@ip} port: #{@port}")
       return result
@@ -149,13 +184,24 @@ module Container
       result
     end
 
+    def rootfs_path
+      @rootfs_path ||= "#{@root}/rootfs/#{@id}"
+    end
+
+    def rootfs_path=(path)
+      @rootfs_path = path
+    end
+
+    def image_path
+      "#{@root}/images/#{@haco}.image.tar"
+    end
+
     def setup_rootfs
-      rootfs = "#{@root}/rootfs/#{@id}"
-      return if File.exist?(rootfs)
-      system "/bin/mkdir -m 755 -p #{rootfs}"
-      system "/bin/tar xfp #{@root}/images/#{@haco}.image.tar -C #{rootfs}"
-      setup_hosts(rootfs)
-      setup_welcome_html(rootfs) if @haco == 'nginx'
+      return if File.exist?(rootfs_path)
+      system "/bin/mkdir -m 755 -p #{rootfs_path}"
+      system "/bin/tar xfp #{image_path} -C #{rootfs_path}"
+      setup_hosts(rootfs_path)
+      setup_welcome_html(rootfs_path) if @haco == 'nginx'
     end
 
     def setup_hosts(root)
@@ -214,16 +260,33 @@ module Container
     end
 
     def listen?
-      Container.debug("FastRemoteCheck start")
       if ret = ::FastRemoteCheck.new('127.0.0.1', 0, @ip, @port, 3).connectable?
-        Container.debug("FastRemoteCheck ok")
+        Container.debug("listen!")
       else
-        Container.debug("FastRemoteCheck ng")
+        Container.debug("not listen")
       end
       ret
     rescue => e
       Container.debug("FastRemoteCheck error: #{e.message} retry")
       false
+    end
+
+    def booting_flag_path
+      "#{@root}/rootfs/#{@id}/.booting"
+    end
+
+    def booting!
+      File.open(booting_flag_path, 'w') {|f|
+        f.flock(File::LOCK_EX)
+      }
+    end
+
+    def not_booting!
+      ::File.delete(booting_flag_path)
+    end
+
+    def booting?
+      ::File.exists?(booting_flag_path)
     end
   end
 end
@@ -236,12 +299,15 @@ rescue
 end
 
 lambda do
+  return Container.dispatch_smtp_no_auth_no_conf(nginx_local_port - 60000) \
+    if nginx_local_port > 60000
+
   return case nginx_local_port
          when 58080 then Container.dispatch_smtp_after_smtp_auth
-         when 58025 then Container.dispatch_smtp_no_auth('dimi-1.test')
-         when 58026 then Container.dispatch_smtp_no_auth('dimi-2.test')
-         when 58027 then Container.dispatch_smtp_no_auth('dimi-3.test')
-         when 58028 then Container.dispatch_smtp_no_auth('dimi-4.test')
+         when 58025 then Container.dispatch_smtp_no_auth('container-1.test')
+         when 58026 then Container.dispatch_smtp_no_auth('container-2.test')
+         when 58027 then Container.dispatch_smtp_no_auth('container-3.test')
+         when 58028 then Container.dispatch_smtp_no_auth('container-4.test')
          when 80 then Container.dispatch_http
          when 8022 then Container.dispatch_ssh
          end

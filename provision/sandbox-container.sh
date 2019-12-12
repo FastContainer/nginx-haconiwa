@@ -1,7 +1,7 @@
 #!/bin/bash
 
 NAME=postfix
-IP=10.0.5.88
+IP=10.1.100.88
 PORT=19999
 
 ID=$NAME-sandbox

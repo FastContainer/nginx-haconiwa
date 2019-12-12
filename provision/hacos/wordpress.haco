@@ -5,8 +5,8 @@
   end
 
 Haconiwa.define do |c|
-  id = ENV['ID'] || "wordpress-10-0-5-20"
-  ip = ENV['IP'] || "10.0.5.20"
+  id = ENV['ID'] || "wordpress-10-1-100-20"
+  ip = ENV['IP'] || "10.1.100.20"
   port = ENV['PORT'] || "80"
 
   c.name = id

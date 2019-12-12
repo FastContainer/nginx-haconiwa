@@ -8,6 +8,10 @@ test -d /var/empty || mkdir /var/empty
 test -d /usr/src/mxtarpit || \
   git clone https://github.com/martinh/mxtarpit.git /usr/src/mxtarpit
 cd /usr/src/mxtarpit
+
+# change interval
+sed -e 's/app.spam_stutter_interval = 3/app.spam_stutter_interval = 0.25/' mxtarpit.c
+
 make linux
 mv ./mxtarpit /usr/sbin/mxtarpit
 test -f /etc/systemd/system/mxtarpit.service || \
