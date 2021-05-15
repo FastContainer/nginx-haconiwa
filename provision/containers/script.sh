@@ -112,3 +112,6 @@ systemctl enable nginx && systemctl start nginx
 
 sysctl -w net.core.somaxconn=4096
 ulimit -n 100000
+
+# stack the containers
+/data/containers/batch.sh
