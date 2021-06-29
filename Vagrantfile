@@ -12,7 +12,7 @@ Vagrant.configure('2') do |config|
   autostart_smtp = !!ENV['SMTP']
 
   config.vm.define 'containers', primary: true do |c|
-    c.disksize.size = '50GB'
+    #c.disksize.size = '50GB'
     c.vm.provider 'virtualbox' do |vb|
       vb.memory = 512 * 6
       vb.cpus = 8
