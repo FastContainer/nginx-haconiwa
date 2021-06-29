@@ -72,3 +72,12 @@ test -f /etc/systemd/system/dstat.service || \
   cp /data/containers/dstat.service /etc/systemd/system/dstat.service && systemctl daemon-reload
 
 systemctl enable dstat && systemctl start dstat
+# install warp
+warp_ver=0.4.0
+wget https://github.com/linyows/warp/releases/download/v${warp_ver}/warp_linux_x86_64.tar.gz
+tar xzf warp_linux_x86_64.tar.gz
+rm -rf /usr/bin/warp
+install warp /usr/bin
+test -f /etc/systemd/system/warp.service || \
+  cp /data/containers/warp.service /etc/systemd/system/warp.service && systemctl daemon-reload
+systemctl enable warp && systemctl start warp

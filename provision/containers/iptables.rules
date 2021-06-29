@@ -4,6 +4,10 @@
 :OUTPUT ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
 :HACONIWA - [0:0]
+
+# WARP
+-A PREROUTING -s 10.1.0.0/16 ! -d 10.0.2.0/24 -p tcp --dport 25 -j DNAT --to-destination 192.168.30.10:10025
+
 -A PREROUTING -m addrtype --dst-type LOCAL -j HACONIWA
 -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j HACONIWA
 #-A POSTROUTING -s 10.0.5.0/24 ! -d 10.0.5.0/24 -j MASQUERADE
