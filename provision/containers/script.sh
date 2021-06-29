@@ -1,19 +1,21 @@
 #!/bin/bash -e
 
+export DEBIAN_FRONTEND noninteractive
+
 nginx_ver=1.13.12
 common_name=fastcontainer.example
 images=("nginx" "ssh" "postfix")
 
 grep 192.168.30 /etc/hosts >/dev/null || cat /data/hosts >> /etc/hosts
 
+apt update -y
 apt upgrade -y
 apt install -y bridge-utils openssl curl
 locale-gen ja_JP.UTF-8
 
 # install haconiwa
 type haconiwa >/dev/null 2>&1 || \
-  curl -s https://packagecloud.io/install/repositories/udzura/haconiwa/script.deb.sh | bash && \
-  apt install -y haconiwa #'haconiwa=0.9.4-1'
+  curl -s https://packagecloud.io/install/repositories/udzura/haconiwa/script.deb.sh | bash
 
 apt-get install -y criu
 haconiwa_ver=0.10.4
