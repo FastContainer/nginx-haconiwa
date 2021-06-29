@@ -69,11 +69,11 @@ systemctl enable nginx && systemctl start nginx
 rm -rf /usr/local/bin/cleanip && ln -s /data/containers/cleanip /usr/local/bin/cleanip
 
 # dstat daemon
-apt-get install -y dstat
-test -f /etc/systemd/system/dstat.service || \
-  cp /data/containers/dstat.service /etc/systemd/system/dstat.service && systemctl daemon-reload
+#apt-get install -y dstat
+#test -f /etc/systemd/system/dstat.service || \
+#  cp /data/containers/dstat.service /etc/systemd/system/dstat.service && systemctl daemon-reload
+#systemctl enable dstat && systemctl start dstat
 
-systemctl enable dstat && systemctl start dstat
 # install warp
 warp_ver=0.4.0
 wget https://github.com/linyows/warp/releases/download/v${warp_ver}/warp_linux_x86_64.tar.gz
