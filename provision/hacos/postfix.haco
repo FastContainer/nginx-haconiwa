@@ -15,11 +15,13 @@ Haconiwa.define do |c|
   ip = ENV['IP']
   port = ENV['PORT']
   bench = ENV['BENCH'] || 'false'
+  #relay = ''
+  relay = ENV['RELAY'] || 'monolith'
   shared = ENV['SHARED'] || 'false'
 
   c.name = id
   c.cgroup_name = "#{id}-#{Time.now.to_i}"
-  c.environ = { 'maildomain' => domain, 'bench' => bench }
+  c.environ = { 'maildomain' => domain, 'bench' => bench, 'relayhost' => relay }
 
   root = Pathname.new("/var/lib/haconiwa/rootfs/#{shared == 'true' ? 'shared/postfix' : id}")
   c.init_command = ['/entry.sh']

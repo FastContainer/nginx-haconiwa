@@ -19,6 +19,11 @@ if [ "$bench" == "true" ]; then
   smtp-sink -R /root -u root -d sink/%Y%m%d%H/%M. 127.0.0.1:8025 5 &
 fi
 
+if [ "$relayhost" != "" ]; then
+  # relay
+  postconf -e relayhost="$relayhost"
+fi
+
 if [ ! -f /var/log/mail.log ]; then
   touch /var/log/mail.log
 fi

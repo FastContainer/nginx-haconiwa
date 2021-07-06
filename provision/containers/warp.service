@@ -1,0 +1,12 @@
+[Unit]
+Description=Warp
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/warp -ip 192.168.30.10 -port 10025
+KillSignal=SIGINT
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

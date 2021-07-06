@@ -1,19 +1,21 @@
 #!/bin/bash -e
 
+export DEBIAN_FRONTEND noninteractive
+
 nginx_ver=1.13.12
 common_name=fastcontainer.example
 images=("nginx" "ssh" "postfix")
 
 grep 192.168.30 /etc/hosts >/dev/null || cat /data/hosts >> /etc/hosts
 
+apt update -y
 apt upgrade -y
 apt install -y bridge-utils openssl curl
 locale-gen ja_JP.UTF-8
 
 # install haconiwa
 type haconiwa >/dev/null 2>&1 || \
-  curl -s https://packagecloud.io/install/repositories/udzura/haconiwa/script.deb.sh | bash && \
-  apt install -y haconiwa #'haconiwa=0.9.4-1'
+  curl -s https://packagecloud.io/install/repositories/udzura/haconiwa/script.deb.sh | bash
 
 apt-get install -y criu
 haconiwa_ver=0.10.4
@@ -101,17 +103,23 @@ test -f /etc/nginx/tls.crt || \
 rm -rf /usr/local/bin/cleanip && ln -s /data/containers/cleanip /usr/local/bin/cleanip
 
 # dstat daemon
-apt-get install -y dstat
-test -f /usr/share/dstat/dstat_postfix_proc_count.py || \
-  cp /data/containers/dstat_postfix_proc_count.py /usr/share/dstat/dstat_postfix_proc_count.py
-test -f /etc/systemd/system/dstat.service || \
-  cp /data/containers/dstat.service /etc/systemd/system/dstat.service && systemctl daemon-reload
+#apt-get install -y dstat
+#test -f /etc/systemd/system/dstat.service || \
+#  cp /data/containers/dstat.service /etc/systemd/system/dstat.service && systemctl daemon-reload
+#systemctl enable dstat && systemctl start dstat
+#systemctl enable nginx && systemctl start nginx
 
-systemctl enable dstat && systemctl start dstat
-systemctl enable nginx && systemctl start nginx
-
-sysctl -w net.core.somaxconn=4096
-ulimit -n 100000
+# install warp
+warp_ver=0.4.0
+wget https://github.com/linyows/warp/releases/download/v${warp_ver}/warp_linux_x86_64.tar.gz
+tar xzf warp_linux_x86_64.tar.gz
+rm -rf /usr/bin/warp
+install warp /usr/bin
+test -f /etc/systemd/system/warp.service || \
+  cp /data/containers/warp.service /etc/systemd/system/warp.service && systemctl daemon-reload
+systemctl enable warp && systemctl start warp
 
 # stack the containers
-/data/containers/batch.sh
+# sysctl -w net.core.somaxconn=4096
+# ulimit -n 100000
+# /data/containers/batch.sh

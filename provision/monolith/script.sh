@@ -25,7 +25,7 @@ postconf -e smtpd_client_connection_count_limit=10000
 
 systemctl restart postfix
 
-test -f /etc/systemd/system/dstat.service || \
-  cp /data/monolith/dstat.service /etc/systemd/system/dstat.service && systemctl daemon-reload
-
-systemctl enable dstat && systemctl start dstat
+# install dstat
+#test -f /etc/systemd/system/dstat.service || \
+#  cp /data/monolith/dstat.service /etc/systemd/system/dstat.service && systemctl daemon-reload
+#systemctl enable dstat && systemctl start dstat
