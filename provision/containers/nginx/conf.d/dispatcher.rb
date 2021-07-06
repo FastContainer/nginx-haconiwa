@@ -150,10 +150,19 @@ module Container
         return result
       end
 
+      if booting?
+        wait_for_listen("/var/lock/.#{@id}.hacolock")
+        return result
+      end
+
+      booting!
+
       Container.debug('Launching a container...')
       setup_rootfs
       start_haconiwa
       wait_for_listen("/var/lock/.#{@id}.hacolock")
+
+      not_booting!
 
       Container.debug("Return ip: #{@ip} port: #{@port}")
       return result
@@ -251,16 +260,33 @@ module Container
     end
 
     def listen?
-      Container.debug("FastRemoteCheck start")
       if ret = ::FastRemoteCheck.new('127.0.0.1', 0, @ip, @port, 3).connectable?
-        Container.debug("FastRemoteCheck ok")
+        Container.debug("listen!")
       else
-        Container.debug("FastRemoteCheck ng")
+        Container.debug("not listen")
       end
       ret
     rescue => e
       Container.debug("FastRemoteCheck error: #{e.message} retry")
       false
+    end
+
+    def booting_flag_path
+      "#{@root}/rootfs/#{@id}/.booting"
+    end
+
+    def booting!
+      File.open(booting_flag_path, 'w') {|f|
+        f.flock(File::LOCK_EX)
+      }
+    end
+
+    def not_booting!
+      ::File.delete(booting_flag_path)
+    end
+
+    def booting?
+      ::File.exists?(booting_flag_path)
     end
   end
 end

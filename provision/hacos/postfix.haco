@@ -10,7 +10,6 @@ Haconiwa.define do |c|
     system "test `mailq | grep -c \"^[A-F0-9]\"` != 0"
   end
 
-  shared = !!ENV['SHARED']
   id = ENV['ID']
   domain =  ENV['DOMAIN'] || id
   ip = ENV['IP']
@@ -18,12 +17,13 @@ Haconiwa.define do |c|
   bench = ENV['BENCH'] || 'false'
   #relay = ''
   relay = ENV['RELAY'] || 'monolith'
+  shared = ENV['SHARED'] || 'false'
 
   c.name = id
   c.cgroup_name = "#{id}-#{Time.now.to_i}"
   c.environ = { 'maildomain' => domain, 'bench' => bench, 'relayhost' => relay }
 
-  root = Pathname.new("/var/lib/haconiwa/rootfs/#{shared ? 'shared/postfix' : id}")
+  root = Pathname.new("/var/lib/haconiwa/rootfs/#{shared == 'true' ? 'shared/postfix' : id}")
   c.init_command = ['/entry.sh']
   c.command.set_stdout(file: "/var/log/haconiwa.out")
   c.command.set_stderr(file: "/var/log/haconiwa.err")
@@ -38,6 +38,11 @@ Haconiwa.define do |c|
   c.mount_independent 'devpts'
   c.mount_independent 'shm'
   c.add_mount_point('/etc/resolv.conf', to: "#{root}/etc/resolv.conf")
+  if shared == 'true'
+    c.add_mount_point("/var/lib/haconiwa/rootfs/#{id}/etc", to: "#{root}/etc/postfix")
+    c.add_mount_point("/var/lib/haconiwa/rootfs/#{id}/spool", to: "#{root}/var/spool/postfix")
+    c.add_mount_point("/var/lib/haconiwa/rootfs/#{id}/lib", to: "#{root}/var/lib/postfix")
+  end
 
   c.namespace.unshare 'mount'
   c.namespace.unshare 'ipc'
