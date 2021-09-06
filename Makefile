@@ -32,4 +32,4 @@ postfix:
 build: base nginx ssh postfix
 build_all: dispatcher build
 
-.PHONY: dispatcher
+.PHONY: dispatcher nginx

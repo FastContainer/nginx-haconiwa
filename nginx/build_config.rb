@@ -9,25 +9,20 @@ MRuby::Build.new('host') do |conf|
   end
 
   # Recommended for ngx_mruby
-  conf.gem mgem: 'mruby-io'
   conf.gem mgem: 'mruby-env'
   conf.gem mgem: 'mruby-dir'
   conf.gem mgem: 'mruby-digest'
   conf.gem mgem: 'mruby-process'
-  conf.gem mgem: 'mruby-pack'
-  conf.gem mgem: 'mruby-socket'
   conf.gem mgem: 'mruby-json'
   conf.gem mgem: 'mruby-onig-regexp'
   conf.gem mgem: 'mruby-redis'
   conf.gem mgem: 'mruby-vedis'
-  conf.gem mgem: 'mruby-sleep'
   conf.gem mgem: 'mruby-userdata'
   conf.gem mgem: 'mruby-uname'
   conf.gem mgem: 'mruby-httprequest'
   conf.gem mgem: 'mruby-mutex'
   conf.gem mgem: 'mruby-localmemcache'
   conf.gem mgem: 'mruby-base64'
-  conf.gem mgem: 'mruby-socket'
   conf.gem mgem: 'mruby-fast-remote-check'
   conf.gem github: 'udzura/mruby-clean-spawn'
   conf.gem github: 'AndrewBelt/mruby-yaml'
@@ -55,9 +50,6 @@ MRuby::Build.new('test') do |conf|
   conf.gem mgem: 'mruby-simpletest'
   conf.gem mgem: 'mruby-http'
   conf.gem mgem: 'mruby-json'
-  conf.gem mgem: 'mruby-io'
-  conf.gem mgem: 'mruby-socket'
-  conf.gem mgem: 'mruby-pack'
   conf.gem mgem: 'mruby-env'
 
   # include the default GEMs
