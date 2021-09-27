@@ -2,7 +2,7 @@
 
 export DEBIAN_FRONTEND noninteractive
 
-nginx_ver=1.13.12
+nginx_ver=1.19.9
 common_name=fastcontainer.example
 images=("nginx" "ssh" "postfix")
 
