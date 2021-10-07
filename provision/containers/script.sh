@@ -2,7 +2,7 @@
 
 export DEBIAN_FRONTEND noninteractive
 
-nginx_ver=1.13.12
+nginx_ver=1.19.9
 common_name=fastcontainer.example
 images=("nginx" "ssh" "postfix")
 
@@ -29,48 +29,6 @@ test -d /var/log/haconiwa || mkdir -p /var/log/haconiwa
 test -d /var/lib/haconiwa/rootfs || mkdir -p /var/lib/haconiwa/rootfs
 rm -rf /var/lib/haconiwa/hacos && ln -s /data/hacos /var/lib/haconiwa/hacos
 rm -rf /var/lib/haconiwa/images && ln -s /data/dist /var/lib/haconiwa/images
-
-# expand postfix image
-postfix_rootfs_path=/var/lib/haconiwa/rootfs/shared/postfix
-postfix_image_path=/var/lib/haconiwa/images/postfix.image.tar
-postfix_workdir_path=/var/lib/haconiwa/images/postfix-workdir.tar.gz
-test -d ${postfix_rootfs_path} || mkdir -m 755 -p ${postfix_rootfs_path}
-test -n "`ls ${postfix_rootfs_path}`" || tar xfp ${postfix_image_path} -C ${postfix_rootfs_path}
-for i in `seq 2 201`; do
-  path=/var/lib/haconiwa/rootfs/postfix-10-1-1-${i}
-  if [ ! -d $path ]; then
-    mkdir -m 755 -p ${path} && tar xzfp ${postfix_workdir_path} -C ${path}
-  fi
-  sleep 1
-done
-for i in `seq 2 201`; do
-  path=/var/lib/haconiwa/rootfs/postfix-10-1-2-${i}
-  if [ ! -d $path ]; then
-    mkdir -m 755 -p ${path} && tar xzfp ${postfix_workdir_path} -C ${path}
-  fi
-  sleep 1
-done
-for i in `seq 2 201`; do
-  path=/var/lib/haconiwa/rootfs/postfix-10-1-3-${i}
-  if [ ! -d $path ]; then
-    mkdir -m 755 -p ${path} && tar xzfp ${postfix_workdir_path} -C ${path}
-  fi
-  sleep 1
-done
-for i in `seq 2 201`; do
-  path=/var/lib/haconiwa/rootfs/postfix-10-1-4-${i}
-  if [ ! -d $path ]; then
-    mkdir -m 755 -p ${path} && tar xzfp ${postfix_workdir_path} -C ${path}
-  fi
-  sleep 1
-done
-for i in `seq 2 201`; do
-  path=/var/lib/haconiwa/rootfs/postfix-10-1-5-${i}
-  if [ ! -d $path ]; then
-    mkdir -m 755 -p ${path} && tar xzfp ${postfix_workdir_path} -C ${path}
-  fi
-  sleep 1
-done
 
 # setup network
 brctl show haconiwa0 2>&1 | grep -i "no such device" && \
@@ -120,6 +78,4 @@ test -f /etc/systemd/system/warp.service || \
 systemctl enable warp && systemctl start warp
 
 # stack the containers
-# sysctl -w net.core.somaxconn=4096
-# ulimit -n 100000
 # /data/containers/batch.sh
